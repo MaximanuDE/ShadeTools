@@ -1,0 +1,225 @@
+/* ==========================================================
+   ShadeTools — design tokens (shared with password-generator)
+   ========================================================== */
+:root {
+    --st-bg: #eef1f1;
+    --st-surface: #ffffff;
+    --st-surface-2: #e2e7e7;
+    --st-text: #12181a;
+    --st-muted: #5c6b6e;
+    --st-border: rgba(18, 24, 26, 0.12);
+    --st-accent: #2f6f6b;
+    --st-accent-strong: #205652;
+    --st-accent-ink: #ffffff;
+    --st-accent-2: #7c5aa8;
+
+    --st-font-display: "Manrope", system-ui, sans-serif;
+    --st-font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+[data-bs-theme="dark"] {
+    --st-bg: #0c1113;
+    --st-surface: #151b1d;
+    --st-surface-2: #1d2528;
+    --st-text: #e8edee;
+    --st-muted: #8fa0a2;
+    --st-border: rgba(232, 237, 238, 0.12);
+    --st-accent: #58b3ac;
+    --st-accent-strong: #7cc9c3;
+    --st-accent-ink: #06110f;
+    --st-accent-2: #b79bde;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+
+html, body {
+    background: var(--st-bg);
+    color: var(--st-text);
+    font-family: var(--st-font-display);
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main { flex: 1 0 auto; }
+
+.st-muted { color: var(--st-muted); }
+
+/* ==========================================================
+   Header / Footer
+   ========================================================== */
+.st-header, .st-footer {
+    border-color: var(--st-border) !important;
+    background: var(--st-bg);
+}
+
+.st-logo {
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: var(--st-text);
+    letter-spacing: -0.01em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.st-logo-mark { color: var(--st-accent); font-size: 1.05rem; display: inline-flex; }
+.st-logo-accent { color: var(--st-accent); }
+
+.st-nav-link {
+    color: var(--st-muted);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.92rem;
+    padding-bottom: 2px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.st-nav-link:hover { color: var(--st-text); }
+.st-nav-link.active { color: var(--st-text); border-bottom-color: var(--st-accent); }
+
+/* ==========================================================
+   Hero
+   ========================================================== */
+.st-hero {
+    padding: 5rem 0 3rem;
+}
+
+.st-eyebrow {
+    font-family: var(--st-font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--st-accent);
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+}
+
+.st-hero-title {
+    font-family: var(--st-font-mono);
+    font-weight: 600;
+    font-size: clamp(2.75rem, 8vw, 5rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+    line-height: 1;
+}
+
+.st-hero-word-accent { color: var(--st-accent); }
+
+.st-hero-subtitle {
+    color: var(--st-muted);
+    font-size: 1.1rem;
+    max-width: 560px;
+    margin-bottom: 0;
+}
+
+.st-hero-char-settled { color: inherit; }
+.st-hero-char-scrambling { color: var(--st-accent-2); opacity: 0.85; }
+
+/* ==========================================================
+   Tools grid
+   ========================================================== */
+.st-tools-section {
+    padding: 1rem 0 5rem;
+}
+
+.st-tools-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+}
+
+.st-tools-title {
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: -0.01em;
+    margin-bottom: 0;
+}
+
+.st-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.st-tool-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: var(--st-surface);
+    border: 1px solid var(--st-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: var(--st-text);
+    transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+a.st-tool-card:hover {
+    border-color: var(--st-accent);
+    transform: translateY(-2px);
+}
+
+.st-tool-card-empty {
+    opacity: 0.6;
+    border-style: dashed;
+}
+
+.st-tool-icon {
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 10px;
+    background: var(--st-surface-2);
+    color: var(--st-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.st-tool-body { flex: 1 1 auto; min-width: 0; }
+
+.st-tool-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+}
+
+.st-tool-desc {
+    font-size: 0.9rem;
+    color: var(--st-muted);
+    margin-bottom: 0;
+}
+
+.st-tool-arrow {
+    flex-shrink: 0;
+    color: var(--st-muted);
+    align-self: center;
+    font-size: 1.1rem;
+    transition: transform 0.15s ease;
+}
+
+a.st-tool-card:hover .st-tool-arrow {
+    color: var(--st-accent);
+    transform: translateX(3px);
+}
+
+/* ==========================================================
+   Accessibility
+   ========================================================== */
+a:focus-visible {
+    outline: 2px solid var(--st-accent);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .st-nav-link, .st-tool-card, .st-tool-arrow {
+        transition: none;
+    }
+}
