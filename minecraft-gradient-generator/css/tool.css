@@ -59,9 +59,9 @@
 .st-color-remove:hover { border-color: var(--st-danger, #d1373f); color: var(--st-danger, #d1373f); }
 
 .st-gradient-preview {
-    font-family: var(--st-font-mono);
-    font-size: 1.35rem;
-    font-weight: 600;
+    font-family: "Monocraft", var(--st-font-mono);
+    font-size: 1.5rem;
+    font-weight: 400;
     padding: 1rem 1.1rem;
     background: #1e1e1e;
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -72,11 +72,17 @@
     letter-spacing: 0.01em;
 }
 
-.st-gradient-preview.st-fmt-bold { font-weight: 800; }
+.st-gradient-preview.st-fmt-bold { font-weight: 700; }
 .st-gradient-preview.st-fmt-italic { font-style: italic; }
-.st-gradient-preview.st-fmt-underline { text-decoration-line: underline; }
-.st-gradient-preview.st-fmt-strikethrough { text-decoration-line: line-through; }
-.st-gradient-preview.st-fmt-underline.st-fmt-strikethrough { text-decoration-line: underline line-through; }
+
+/* Decoration color is set per-character span (matching that character's
+   own gradient color via currentColor) rather than on the preview
+   container — a decoration line drawn from the container ends up in the
+   container's own text color instead of following each span, which
+   looked like a flat white/gray line cutting across the gradient. */
+.st-gradient-preview.st-fmt-underline > span { text-decoration-line: underline; text-decoration-color: currentColor; }
+.st-gradient-preview.st-fmt-strikethrough > span { text-decoration-line: line-through; text-decoration-color: currentColor; }
+.st-gradient-preview.st-fmt-underline.st-fmt-strikethrough > span { text-decoration-line: underline line-through; text-decoration-color: currentColor; }
 
 #output-chars {
     font-family: var(--st-font-mono);
