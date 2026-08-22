@@ -6,7 +6,7 @@ Small, focused browser tools that run entirely on the client. No accounts, no se
 
 Grouped into categories, shown the same way in the header's Tools dropdown and on the homepage.
 
-**Allgemein**
+**General**
 
 | Tool | Path | Description |
 |---|---|---|
