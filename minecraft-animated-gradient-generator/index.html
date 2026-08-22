@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Generate Minecraft hex color gradient text with multiple color stops, RGB/HSL/OKLab interpolation, and text formatting — MiniMessage, legacy § / &amp; and raw JSON formats. Runs entirely in your browser.">
-    <link rel="canonical" href="https://shadetools.maximanu.de/minecraft-gradient-generator/">
+    <meta name="description" content="Generate animated Minecraft gradient text frames for the TAB plugin's animations.yml — RGB/HSL/OKLab blending, four scan styles, and a live preview. Runs entirely in your browser.">
+    <link rel="canonical" href="https://shadetools.maximanu.de/minecraft-animated-gradient-generator/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="ShadeTools">
-    <meta property="og:title" content="Minecraft Gradient Generator — ShadeTools">
-    <meta property="og:description" content="Generate Minecraft hex color gradient text with multiple color stops, multiple interpolation modes, and text formatting.">
-    <meta property="og:url" content="https://shadetools.maximanu.de/minecraft-gradient-generator/">
+    <meta property="og:title" content="Animated Gradient Generator — ShadeTools">
+    <meta property="og:description" content="Generate animated Minecraft gradient text frames for the TAB plugin's animations.yml.">
+    <meta property="og:url" content="https://shadetools.maximanu.de/minecraft-animated-gradient-generator/">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Minecraft Gradient Generator — ShadeTools">
-    <meta name="twitter:description" content="Generate Minecraft hex color gradient text with multiple color stops and text formatting.">
+    <meta name="twitter:title" content="Animated Gradient Generator — ShadeTools">
+    <meta name="twitter:description" content="Generate animated Minecraft gradient text frames for the TAB plugin.">
     <meta name="theme-color" content="#f1f2f6" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#0a0b10" media="(prefers-color-scheme: dark)">
-    <title>Minecraft Gradient Generator — ShadeTools</title>
+    <title>Animated Gradient Generator — ShadeTools</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="mask-icon" href="/favicon.svg" color="#6339d9">
 
@@ -40,9 +40,9 @@
         <section class="st-tool-section">
             <div class="container">
                 <div class="st-tool-intro">
-                    <p class="st-eyebrow"><i class="bi bi-palette2"></i> Local &amp; instant</p>
-                    <h1 class="st-title">Minecraft Gradient Generator</h1>
-                    <p class="st-subtitle">Turn text into a hex color gradient with as many color stops as you like, three interpolation modes, and text formatting — for MOTDs, tab lists, scoreboards, and plugin messages. Nothing is sent to a server.</p>
+                    <p class="st-eyebrow"><i class="bi bi-stars"></i> Local &amp; instant</p>
+                    <h1 class="st-title">Animated Gradient Generator</h1>
+                    <p class="st-subtitle">Turns text into a scanning gradient animation and exports every frame, ready to paste into the TAB plugin's <code>animations.yml</code>. Nothing is sent to a server.</p>
                 </div>
 
                 <div class="st-panel">
@@ -50,7 +50,7 @@
                         <div class="st-field-label">
                             <label for="input-text">Your text</label>
                         </div>
-                        <input type="text" class="form-control st-input" id="input-text" placeholder="Type something…" maxlength="200" value="ShadeTools">
+                        <input type="text" class="form-control st-input" id="input-text" placeholder="Type something…" maxlength="80" value="ShadeTools">
                     </div>
 
                     <div class="st-field">
@@ -61,15 +61,50 @@
                         <div class="st-color-list" id="color-list"></div>
                     </div>
 
+                    <div class="st-field-row">
+                        <div class="st-field">
+                            <div class="st-field-label">
+                                <label for="mode-select">Gradient mode</label>
+                            </div>
+                            <select class="form-select st-select st-select-wide" id="mode-select">
+                                <option value="rgb">RGB — linear</option>
+                                <option value="hsl">HSL — vivid hues</option>
+                                <option value="oklab" selected>OKLab — perceptually smooth</option>
+                            </select>
+                        </div>
+                        <div class="st-field">
+                            <div class="st-field-label">
+                                <label for="style-select">Animation style</label>
+                            </div>
+                            <select class="form-select st-select st-select-wide" id="style-select">
+                                <option value="1" selected>Left to right</option>
+                                <option value="2">Right to left</option>
+                                <option value="3">Bouncing</option>
+                                <option value="4">Full-text cycle</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="st-field-row">
+                        <div class="st-field">
+                            <div class="st-field-label">
+                                <label for="band-input">Color band size</label>
+                            </div>
+                            <input type="number" class="form-control st-input" id="band-input" min="1" max="10" value="1">
+                        </div>
+                        <div class="st-field">
+                            <div class="st-field-label">
+                                <label for="speed-input">Change interval (ticks)</label>
+                            </div>
+                            <input type="number" class="form-control st-input" id="speed-input" min="1" max="1000" value="2">
+                        </div>
+                    </div>
+
                     <div class="st-field">
                         <div class="st-field-label">
-                            <label for="mode-select">Gradient mode</label>
+                            <label for="name-input">Animation name</label>
                         </div>
-                        <select class="form-select st-select st-select-wide" id="mode-select">
-                            <option value="rgb">RGB — linear</option>
-                            <option value="hsl">HSL — vivid hues</option>
-                            <option value="oklab" selected>OKLab — perceptually smooth</option>
-                        </select>
+                        <input type="text" class="form-control st-input" id="name-input" placeholder="gradient" maxlength="40" value="gradient">
                     </div>
 
                     <div class="st-field">
@@ -100,23 +135,23 @@
                         </div>
                     </div>
 
-                    <div class="st-gradient-preview" id="preview" aria-live="polite"></div>
+                    <div class="st-gradient-preview st-anim-preview" id="preview" aria-live="polite"></div>
+                    <p class="st-note" id="frame-note"></p>
 
                     <div class="st-field">
                         <div class="st-field-label">
-                            <label for="format-select">Output format</label>
+                            <label for="format-select">Color code format</label>
                         </div>
                         <select class="form-select st-select st-select-wide" id="format-select">
                             <option value="minimessage" selected>MiniMessage (Paper / Adventure)</option>
                             <option value="section">Legacy — § section sign</option>
                             <option value="amp">Legacy — &amp; ampersand</option>
-                            <option value="json">Raw JSON (text component)</option>
                         </select>
                     </div>
 
                     <div class="st-output-row">
-                        <div class="st-output st-output-multiline" id="output" role="textbox" aria-readonly="true" aria-label="Formatted gradient code">
-                            <span class="st-output-placeholder" id="output-placeholder">Type something to generate the code</span>
+                        <div class="st-output st-output-multiline" id="output" role="textbox" aria-readonly="true" aria-label="animations.yml block">
+                            <span class="st-output-placeholder" id="output-placeholder">Type something to generate the animation</span>
                             <span class="st-output-chars" id="output-chars" aria-hidden="true"></span>
                         </div>
                         <div class="st-output-actions">
@@ -126,7 +161,7 @@
                         </div>
                     </div>
 
-                    <p class="st-note" id="format-note"></p>
+                    <p class="st-note">Paste this block into TAB's <code>animations.yml</code>, or drop just the <code>texts:</code> lines into any config that reads animation frames the same way.</p>
                 </div>
             </div>
         </section>

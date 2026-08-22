@@ -18,6 +18,7 @@ Grouped into categories, shown the same way in the header's Tools dropdown and o
 | Tool | Path | Description |
 |---|---|---|
 | Gradient Generator | [`/minecraft-gradient-generator/`](minecraft-gradient-generator/) | Turns text into a hex gradient (any number of color stops, RGB/HSL/OKLab blending) with bold/italic/underline/strikethrough/obfuscated formatting, for Minecraft (1.16+). Output as MiniMessage, legacy `§`/`&` per-character color codes, or raw JSON. |
+| Animated Gradient Generator | [`/minecraft-animated-gradient-generator/`](minecraft-animated-gradient-generator/) | Turns text into a scanning gradient animation (left-to-right, right-to-left, bouncing, or full-text color cycle) and exports every frame as a ready-to-paste [TAB plugin](https://github.com/NEZNAMY/TAB) `animations.yml` block, with a live animated preview. |
 
 ## Project structure
 
@@ -31,12 +32,14 @@ components/
 css/
 └── style.css
 js/
-└── main.js
+├── main.js
+└── minecraft-color-utils.js
 ```
 
 - `components/header.html`, `components/footer.html` — the site-wide header and footer, fetched at runtime via absolute paths (`/components/header.html`) and injected into each page's `<div id="header"></div>` / `<div id="footer"></div>` mount points. The header's "Tools" entry is a dropdown (hover or click on desktop, a tap-open accordion on mobile via Bootstrap's collapse) grouping every tool by category.
 - `css/style.css` — design tokens (CSS custom properties, light and dark), base `html`/`body` rules, header/footer/dropdown styling, the homepage's own sections (hero, principles, tools grid), and the generic **tool page shell** (intro block, panel, output+copy row, form fields, primary button) shared by every `*-generator/` subpage.
 - `js/main.js` — component loading, theme sync, active-nav-link detection, the desktop dropdown's hover/click behavior, and `window.ShadeTools.copyToClipboard()` — a small shared helper (copy text, flash the trigger icon) every tool's own script calls into. Loaded by every page via `/js/main.js`.
+- `js/minecraft-color-utils.js` — RGB/HSL/OKLab color math, gradient sampling, animation-frame generation, and Minecraft output-format builders (MiniMessage, legacy `§`/`&`, JSON), exposed as `window.ShadeToolsMC`. Shared by both `minecraft-gradient-generator/` and `minecraft-animated-gradient-generator/` so the color science lives in one place; loaded via `/js/minecraft-color-utils.js` only by the pages that need it.
 
 Each tool subpage links this shared base with absolute paths (`/css/style.css`, `/js/main.js`) and adds only what's specific to that tool:
 
@@ -104,4 +107,13 @@ Any other static file server works too (e.g. the "Live Server" extension in VS C
 - In MiniMessage output, RGB mode emits a compact `<gradient:#aaa:#bbb>text</gradient>` tag, since Adventure's own gradient tag interpolates in plain RGB and matches exactly. HSL/OKLab modes emit an explicit `<#RRGGBB>` color before each character instead, since Adventure has no equivalent for those color spaces.
 - The legacy outputs insert an explicit hex color code before every non-space character (`§x§R§R§G§G§B§B` / `&x&R&R&G&G&B&B`); a color code resets formatting state in legacy text, so format codes are reinserted after every color code rather than once at the start.
 - The obfuscated-text preview continuously cycles random glyphs (skipped under `prefers-reduced-motion`), echoing how Minecraft actually renders obfuscated text in-game.
+
+## Notes on the animated gradient generator
+
+- Ported from birdflop/web's `AnimTABUtils.generateAnimTABFrames`, simplified the same way the static gradient generator is: no rich per-selection formatting and no custom (non-evenly-spaced) color-stop positions, and MiniMessage output always emits an explicit color before each character rather than porting the color-stop-shifting math behind birdflop's compact animated `<gradient>` output.
+- Four scan styles: **left to right** and **right to left** sweep the gradient across the text once; **bouncing** plays that sweep forward then in reverse; **full-text cycle** recolors the whole string as one solid, shifting color instead of a per-character gradient.
+- Each animation frame samples the gradient at a step offset by the frame index and the character's position, reflected through a triangle-wave function (`easedStep` in `js/minecraft-color-utils.js`) so the scan direction reverses smoothly at the text's ends instead of jumping or clamping.
+- **Color band size** groups that many consecutive characters under one shared color per frame — set above 1, the animation reads as wider bands sweeping across the text rather than a per-letter shimmer, which holds up better on longer strings.
+- The output is a complete [TAB plugin](https://github.com/NEZNAMY/TAB) `animations.yml` entry: `<name>:` header, `change-interval:` (in game ticks, 20 = 1 second) taken from the speed field, and a `texts:` list with one quoted line per generated frame — matching TAB's own animation format exactly, so the block can be pasted in as-is.
+- The live preview animates at the same interval as the exported `change-interval` (converted from ticks to milliseconds), so what's on screen matches the timing of the exported frames. It freezes on the first frame under `prefers-reduced-motion`.
 
