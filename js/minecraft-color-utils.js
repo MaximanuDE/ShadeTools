@@ -268,22 +268,13 @@ window.ShadeToolsMC = (function () {
         return out;
     }
 
-    // Compact native <gradient:c1:c2:...> tag — Adventure interpolates
-    // this in plain RGB, so it only matches when mode === "rgb".
+    // Compact native <gradient:c1:c2:...> tag, built straight from the
+    // original color stops. Adventure's own gradient tag always
+    // interpolates the pixels between those stops in plain RGB, so in
+    // HSL/OKLab mode the in-game look is a close approximation of this
+    // tool's own preview rather than an exact match.
     function miniMessageGradientTag(hexColors, text) {
         return "<gradient:" + hexColors.join(":") + ">" + text + "</gradient>";
-    }
-
-    // Explicit per-character color, for modes Adventure's own gradient
-    // tag can't express (HSL/OKLab), and as a fallback for animated
-    // frames with custom (non-evenly-spaced) color-stop positions.
-    function miniMessagePerChar(text, colors) {
-        var out = "";
-        for (var i = 0; i < text.length; i++) {
-            var ch = text[i];
-            out += ch === " " ? ch : "<" + colors[i] + ">" + ch;
-        }
-        return out;
     }
 
     // Single flat color for the whole string — used for FULL_TEXT_CYCLE
@@ -398,7 +389,7 @@ window.ShadeToolsMC = (function () {
 
     // Expands one frame's per-segment colors into a per-character array,
     // so the existing per-character output builders (legacyOutput,
-    // miniMessagePerChar, jsonOutput) can be reused unchanged.
+    // jsonOutputCompact, etc.) can be reused unchanged.
     function expandSegmentColors(segments, frameColors) {
         var out = [];
         segments.forEach(function (seg, i) {
@@ -525,26 +516,26 @@ window.ShadeToolsMC = (function () {
         };
     }
 
+    // Public surface: only what minecraft-gradient-generator/ and
+    // minecraft-animated-gradient-generator/ actually call. The lower-
+    // level color-math primitives (hexToRgb, colorAtT, prepareStops,
+    // easedStep, segmentText, ...) stay as plain functions in this
+    // closure — used internally by buildGradientColors/
+    // buildAnimationFrames/shiftedGradientStops, just not part of the
+    // public contract right now.
     return {
-        hexToRgb: hexToRgb,
-        rgbToHex: rgbToHex,
-        prepareStops: prepareStops,
-        colorAtT: colorAtT,
         buildGradientColors: buildGradientColors,
-        easedStep: easedStep,
         legacyOutput: legacyOutput,
         flatHexOutput: flatHexOutput,
         shortHexTagOutput: shortHexTagOutput,
         bbcodeOutput: bbcodeOutput,
         wrapMiniMessageFormatting: wrapMiniMessageFormatting,
         miniMessageGradientTag: miniMessageGradientTag,
-        miniMessagePerChar: miniMessagePerChar,
         miniMessageColorTag: miniMessageColorTag,
         shiftedGradientStops: shiftedGradientStops,
         jsonOutput: jsonOutput,
         jsonOutputCompact: jsonOutputCompact,
         ANIMATION_STYLES: ANIMATION_STYLES,
-        segmentText: segmentText,
         buildAnimationFrames: buildAnimationFrames,
         expandSegmentColors: expandSegmentColors,
         readFormatting: readFormatting,

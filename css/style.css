@@ -9,8 +9,8 @@
     --st-accent-strong: #4c26b0;
     --st-accent-ink: #ffffff;
     --st-accent-2: #16c2d1;
-    --st-accent-2-ink: #04222a;
     --st-success: #2f8f5b;
+    --st-danger: #d1373f;
 
     --st-font-display: "Space Grotesk", system-ui, sans-serif;
     --st-font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
@@ -27,8 +27,8 @@
     --st-accent-strong: #b79dff;
     --st-accent-ink: #150a33;
     --st-accent-2: #4ce0ef;
-    --st-accent-2-ink: #04222a;
     --st-success: #52c98a;
+    --st-danger: #ff6b6b;
 }
 
 /* Monocraft — an open-source (SIL OFL) monospace font inspired by the
@@ -944,7 +944,7 @@ a.st-tool-card:hover .st-tool-arrow {
     font-size: 0.9rem;
 }
 
-.st-color-remove:hover { border-color: var(--st-danger, #d1373f); color: var(--st-danger, #d1373f); }
+.st-color-remove:hover { border-color: var(--st-danger); color: var(--st-danger); }
 
 .st-gradient-preview {
     font-family: "Monocraft", var(--st-font-mono);

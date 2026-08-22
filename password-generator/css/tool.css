@@ -3,13 +3,14 @@
    row, form fields, primary button) come from the shared /css/style.css,
    loaded before this file — see the <link> order in index.html. */
 
+/* --st-danger lives in the shared css/style.css now (the Minecraft
+   tools' color-remove button needs it too); --st-warning is only used
+   here, so it stays local. */
 :root {
-    --st-danger: #d1373f;
     --st-warning: #c8871a;
 }
 
 [data-bs-theme="dark"] {
-    --st-danger: #ff6b6b;
     --st-warning: #f2b544;
 }
 
