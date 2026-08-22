@@ -10,9 +10,26 @@
      * a per-character array (buildAnimationFrames groups characters
      * into color bands when "color band size" > 1).
      * ------------------------------------------------------------- */
-    function frameLine(format, text, segments, frameColors, formatting) {
+    function frameLine(format, text, segments, frameColors, formatting, animCtx) {
+        if (format === "minimessage") {
+            var inner;
+            if (animCtx.isSolid) {
+                // FULL_TEXT_CYCLE: every character already shares one
+                // color, so a single <color> tag around the whole line
+                // says the same thing as N identical per-char tags.
+                inner = MC.miniMessageColorTag(text, frameColors[0]);
+            } else {
+                // Native <gradient:...> tag with one shifted stop per
+                // original color, so Adventure animates the scan itself
+                // instead of needing an explicit color before every
+                // character — see shiftedGradientStops() for why.
+                var shifted = MC.shiftedGradientStops(animCtx.step, animCtx.hexColors, animCtx.mode, animCtx.totalSteps);
+                inner = MC.miniMessageGradientTag(shifted, text);
+            }
+            return MC.wrapMiniMessageFormatting(inner, formatting);
+        }
+
         var perChar = MC.expandSegmentColors(segments, frameColors);
-        if (format === "minimessage") return MC.wrapMiniMessageFormatting(MC.miniMessagePerChar(text, perChar), formatting);
         if (format === "shorthex") return MC.shortHexTagOutput(text, perChar, formatting);
         if (format === "json") return MC.jsonOutputCompact(text, perChar, formatting);
         if (format === "ampflat") return MC.flatHexOutput(text, perChar, formatting);
@@ -30,7 +47,7 @@
     }
 
     var FORMAT_NOTES = {
-        minimessage: "MiniMessage works directly in Paper/Adventure-based plugin configs, including TAB when its MiniMessage support is enabled. Every animated frame uses an explicit color before each character, since Adventure's compact <gradient> tag can't express a scanning animation.",
+        minimessage: "MiniMessage works directly in Paper/Adventure-based plugin configs, including TAB when its MiniMessage support is enabled. Each frame is a single <gradient> tag with shifted color stops (or <color> for full-text cycle), so Adventure renders the scan itself.",
         shorthex: "The <#rrggbb> shorthand tag before each character in every frame, standalone rather than wrapped in a MiniMessage gradient tag.",
         section: "Legacy format using § (Minecraft Java Edition 1.16+). Works with TAB out of the box; a hex color code is inserted before every character in each frame.",
         amp: "Legacy format using & (Minecraft Java Edition 1.16+). Use this wherever a plugin auto-translates ampersand codes; a hex color code is inserted before every character in each frame.",
@@ -124,15 +141,24 @@
             return;
         }
 
-        var built = MC.buildAnimationFrames(text, colorList.getColors(), mode, band, style);
+        var hexColors = colorList.getColors();
+        var built = MC.buildAnimationFrames(text, hexColors, mode, band, style);
         currentSegments = built.segments;
         currentFrames = built.frames;
         currentFrameIndex = 0;
 
         startPreview(text, formatting, speed);
 
-        var frameLines = currentFrames.map(function (frameColors) {
-            return frameLine(format, text, currentSegments, frameColors, formatting);
+        var isSolid = style === MC.ANIMATION_STYLES.FULL_TEXT_CYCLE;
+        var frameLines = currentFrames.map(function (frameColors, idx) {
+            var animCtx = {
+                step: built.steps[idx],
+                totalSteps: built.totalSteps,
+                hexColors: hexColors,
+                mode: mode,
+                isSolid: isSolid
+            };
+            return frameLine(format, text, currentSegments, frameColors, formatting, animCtx);
         });
         currentOutput = tabYamlOutput(name, speed, frameLines);
         window.ShadeTools.renderOutput(currentOutput);
