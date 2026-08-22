@@ -1,3 +1,40 @@
+/* ---------------------------------------------------------------
+ * Shared utility used by every tool page's own script: copy text
+ * to the clipboard and flash the trigger button's icon on success.
+ * Exposed on window since each page's script is its own closure.
+ * ------------------------------------------------------------- */
+window.ShadeTools = window.ShadeTools || {};
+
+window.ShadeTools.copyToClipboard = function (text, triggerEl) {
+    if (!text) return;
+
+    function done() {
+        if (!triggerEl) return;
+        var icon = triggerEl.querySelector("i");
+        if (!icon) return;
+        var original = icon.className;
+        icon.className = "bi bi-check2";
+        triggerEl.classList.add("st-btn-icon-success");
+        setTimeout(function () {
+            icon.className = original;
+            triggerEl.classList.remove("st-btn-icon-success");
+        }, 1200);
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () {});
+    } else {
+        var temp = document.createElement("textarea");
+        temp.value = text;
+        temp.style.position = "fixed";
+        temp.style.opacity = "0";
+        document.body.appendChild(temp);
+        temp.select();
+        try { document.execCommand("copy"); done(); } catch (err) { /* no-op */ }
+        document.body.removeChild(temp);
+    }
+};
+
 (function () {
     "use strict";
 
@@ -19,9 +56,10 @@
             });
     }
 
-    // Marks whichever header nav link matches the current page as active.
-    // The header markup itself carries no per-page state, since it's the
-    // same fetched partial on every page.
+    // Marks whichever header nav link matches the current page as active,
+    // and highlights a "Tools" dropdown trigger too if one of its items is
+    // the active page. The header markup itself carries no per-page state,
+    // since it's the same fetched partial on every page.
     function markActiveNavLink() {
         var links = document.querySelectorAll(".st-nav-link");
         links.forEach(function (link) {
@@ -32,6 +70,40 @@
             } else {
                 link.removeAttribute("aria-current");
             }
+        });
+
+        document.querySelectorAll(".st-nav-dropdown-toggle").forEach(function (toggle) {
+            var panel = toggle.nextElementSibling;
+            var hasActiveItem = panel && !!panel.querySelector(".st-nav-link.active");
+            toggle.classList.toggle("active", hasActiveItem);
+        });
+    }
+
+    // Desktop "Tools" dropdown: opens on hover (real pointer devices) and
+    // on click/tap/keyboard (everyone else). Mobile uses Bootstrap's own
+    // nested collapse instead, wired entirely via data attributes.
+    function initDesktopDropdown() {
+        var dropdown = document.querySelector(".st-nav-dropdown");
+        if (!dropdown) return;
+
+        var toggle = dropdown.querySelector(".st-nav-dropdown-toggle");
+        if (!toggle) return;
+
+        function setOpen(open) {
+            dropdown.classList.toggle("open", open);
+            toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        }
+
+        toggle.addEventListener("click", function () {
+            setOpen(!dropdown.classList.contains("open"));
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!dropdown.contains(e.target)) setOpen(false);
+        });
+
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") setOpen(false);
         });
     }
 
@@ -122,7 +194,10 @@
         Promise.all([
             loadComponent("header", "/components/header.html"),
             loadComponent("footer", "/components/footer.html")
-        ]).then(markActiveNavLink);
+        ]).then(function () {
+            markActiveNavLink();
+            initDesktopDropdown();
+        });
 
         animateHero();
     });
