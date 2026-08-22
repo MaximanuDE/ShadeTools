@@ -8,6 +8,14 @@
     min-height: 4.5rem;
 }
 
+/* The small-caps glyphs live in obscure Unicode blocks (Phonetic
+   Extensions, Latin Extended-C/D, IPA Extensions) that a coding
+   monospace font like JetBrains Mono doesn't cover — the browser was
+   falling back to a different font per glyph, so letters in the same
+   word rendered at wildly different sizes/weights. A general-purpose
+   UI font stack has far more complete coverage and renders consistently. */
 #output-chars {
+    font-family: "Noto Sans", "Segoe UI", system-ui, sans-serif;
     font-size: 1.3rem;
+    line-height: 1.5;
 }
