@@ -34,8 +34,8 @@ Subpages are self-contained: each one has its own `components/`, `css/`, and `js
 
 Shared across all pages via CSS custom properties defined in each page's `css/style.css`:
 
-- **Colors:** a teal (`--st-accent`) / violet (`--st-accent-2`) duotone, with separate light and dark value sets under `[data-bs-theme="dark"]`.
-- **Type:** [Manrope](https://fonts.google.com/specimen/Manrope) for UI text, [IBM Plex Mono](https://fonts.google.com/specimen/IBM+Plex+Mono) for anything data-like (passwords, entropy values, the wordmark).
+- **Colors:** a violet (`--st-accent`) / cyan (`--st-accent-2`) duotone on a cool neutral gray background, with separate light and dark value sets under `[data-bs-theme="dark"]`.
+- **Type:** [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk) for UI text, [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) for anything data-like (passwords, entropy values, the eyebrow labels).
 - **Framework:** [Bootstrap 5.3.8](https://getbootstrap.com/) + [Bootstrap Icons 1.13.1](https://icons.getbootstrap.com/), loaded from jsDelivr CDN. Custom styles in `style.css` sit on top of Bootstrap's defaults rather than overriding them wholesale.
 
 ## Dark / light mode
@@ -67,11 +67,7 @@ Any other static file server works too (e.g. the "Live Server" extension in VS C
 ## Notes on the password generator
 
 - Randomness is generated with `crypto.getRandomValues`, not `Math.random`.
-- Passphrase words come from a fixed, local list of 203 common English words (`WORDLIST` in `password-generator/js/main.js`) — nothing is fetched from an external dictionary API.
+- Passphrase words come from a fixed, local list of 256 common English words (`WORDLIST` in `password-generator/js/main.js`) — nothing is fetched from an external dictionary API. 256 words means exactly 8 bits of entropy per word.
 - The entropy estimate only counts genuinely random choices (character pool size × length, or word count × word-list size). Fixed choices like the separator or capitalization style are not counted toward it, so the number shown is a conservative estimate rather than an inflated one.
 - History is kept in memory only (a plain JS array), not in `localStorage` or `sessionStorage`. It's cleared on reload by design — generated passwords are not meant to persist in browser storage.
 
-## Open items
-
-- No root-level favicon (`/favicon.svg`) is included yet; both pages reference it but the file itself hasn't been created.
-- `canonical` and `og:url` meta tags are left empty in both pages since the real deployment domain isn't known yet — fill these in once the site has a home.
