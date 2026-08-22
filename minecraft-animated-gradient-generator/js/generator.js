@@ -42,85 +42,17 @@
     /* ---------------------------------------------------------------
      * State
      * ------------------------------------------------------------- */
-    var state = {
-        colors: ["#6339d9", "#16c2d1"]
-    };
-
     var currentOutput = "";
-    var scrambleTimer = null;
     var frameTimer = null;
     var currentFrames = null;
     var currentSegments = null;
     var currentFrameIndex = 0;
-
-    function prefersReducedMotion() {
-        return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    }
-
-    function getFormatting() {
-        return {
-            bold: document.getElementById("fmt-bold").checked,
-            italic: document.getElementById("fmt-italic").checked,
-            underline: document.getElementById("fmt-underline").checked,
-            strikethrough: document.getElementById("fmt-strikethrough").checked,
-            obfuscate: document.getElementById("fmt-obfuscate").checked
-        };
-    }
-
-    /* ---------------------------------------------------------------
-     * Color list UI
-     * ------------------------------------------------------------- */
-    function renderColorList() {
-        var list = document.getElementById("color-list");
-        list.innerHTML = "";
-
-        state.colors.forEach(function (hex, i) {
-            var row = document.createElement("div");
-            row.className = "st-color-row-item";
-
-            var swatch = document.createElement("input");
-            swatch.type = "color";
-            swatch.className = "st-color-swatch";
-            swatch.value = hex;
-            swatch.setAttribute("aria-label", "Color " + (i + 1));
-            swatch.addEventListener("input", function () {
-                state.colors[i] = swatch.value;
-                hexLabel.textContent = swatch.value.toUpperCase();
-                update();
-            });
-
-            var hexLabel = document.createElement("span");
-            hexLabel.className = "st-color-hex";
-            hexLabel.textContent = hex.toUpperCase();
-
-            row.appendChild(swatch);
-            row.appendChild(hexLabel);
-
-            if (state.colors.length > 2) {
-                var removeBtn = document.createElement("button");
-                removeBtn.type = "button";
-                removeBtn.className = "st-color-remove";
-                removeBtn.setAttribute("aria-label", "Remove color " + (i + 1));
-                removeBtn.innerHTML = '<i class="bi bi-x-lg"></i>';
-                removeBtn.addEventListener("click", function () {
-                    state.colors.splice(i, 1);
-                    renderColorList();
-                    update();
-                });
-                row.appendChild(removeBtn);
-            }
-
-            list.appendChild(row);
-        });
-
-        document.getElementById("add-color").disabled = state.colors.length >= 8;
-    }
+    var colorList = null;
 
     /* ---------------------------------------------------------------
      * Preview
      * ------------------------------------------------------------- */
     function stopTimers() {
-        if (scrambleTimer) { clearInterval(scrambleTimer); scrambleTimer = null; }
         if (frameTimer) { clearInterval(frameTimer); frameTimer = null; }
     }
 
@@ -130,12 +62,13 @@
 
         var frameColors = currentFrames[currentFrameIndex % currentFrames.length];
         var perChar = MC.expandSegmentColors(currentSegments, frameColors);
+        var reducedMotion = window.ShadeTools.prefersReducedMotion();
 
         preview.innerHTML = "";
         var chars = text.split("");
         chars.forEach(function (ch, i) {
             var span = document.createElement("span");
-            span.textContent = formatting.obfuscate && ch !== " " && !prefersReducedMotion()
+            span.textContent = formatting.obfuscate && ch !== " " && !reducedMotion
                 ? SCRAMBLE_GLYPHS[Math.floor(Math.random() * SCRAMBLE_GLYPHS.length)]
                 : ch;
             span.style.color = perChar[i] || "inherit";
@@ -148,7 +81,7 @@
         applyPreviewClasses(formatting);
 
         renderPreviewFrame(text, formatting);
-        if (prefersReducedMotion()) return;
+        if (window.ShadeTools.prefersReducedMotion()) return;
 
         var ms = Math.max(50, speedTicks * 50);
         frameTimer = setInterval(function () {
@@ -165,18 +98,6 @@
         preview.classList.toggle("st-fmt-strikethrough", formatting.strikethrough);
     }
 
-    function renderOutput(code) {
-        var placeholder = document.getElementById("output-placeholder");
-        var chars = document.getElementById("output-chars");
-        if (!code) {
-            placeholder.style.display = "";
-            chars.textContent = "";
-            return;
-        }
-        placeholder.style.display = "none";
-        chars.textContent = code;
-    }
-
     /* ---------------------------------------------------------------
      * Main update
      * ------------------------------------------------------------- */
@@ -188,7 +109,7 @@
         var speed = Math.max(1, Math.min(1000, Number(document.getElementById("speed-input").value) || 1));
         var name = document.getElementById("name-input").value.trim() || "gradient";
         var format = document.getElementById("format-select").value;
-        var formatting = getFormatting();
+        var formatting = MC.readFormatting();
 
         var preview = document.getElementById("preview");
 
@@ -198,12 +119,12 @@
             currentSegments = null;
             preview.innerHTML = '<span class="st-output-placeholder">Type something to preview the animation</span>';
             currentOutput = "";
-            renderOutput("");
+            window.ShadeTools.renderOutput("");
             document.getElementById("frame-note").textContent = "";
             return;
         }
 
-        var built = MC.buildAnimationFrames(text, state.colors, mode, band, style);
+        var built = MC.buildAnimationFrames(text, colorList.getColors(), mode, band, style);
         currentSegments = built.segments;
         currentFrames = built.frames;
         currentFrameIndex = 0;
@@ -214,7 +135,7 @@
             return frameLine(format, text, currentSegments, frameColors, formatting);
         });
         currentOutput = tabYamlOutput(name, speed, frameLines);
-        renderOutput(currentOutput);
+        window.ShadeTools.renderOutput(currentOutput);
 
         var noteEl = document.getElementById("frame-note");
         noteEl.textContent = currentFrames.length + " frame" + (currentFrames.length === 1 ? "" : "s") + " generated. " + (FORMAT_NOTES[format] || "");
@@ -224,7 +145,12 @@
      * Init
      * ------------------------------------------------------------- */
     document.addEventListener("DOMContentLoaded", function () {
-        renderColorList();
+        colorList = MC.createColorList({
+            container: document.getElementById("color-list"),
+            addButton: document.getElementById("add-color"),
+            initialColors: ["#6339d9", "#16c2d1"],
+            onChange: update
+        });
 
         ["input-text", "mode-select", "style-select", "band-input", "speed-input", "name-input", "format-select"].forEach(function (id) {
             var el = document.getElementById(id);
@@ -233,13 +159,6 @@
         });
         ["fmt-bold", "fmt-italic", "fmt-underline", "fmt-strikethrough", "fmt-obfuscate"].forEach(function (id) {
             document.getElementById(id).addEventListener("change", update);
-        });
-
-        document.getElementById("add-color").addEventListener("click", function () {
-            if (state.colors.length >= 8) return;
-            state.colors.push("#ffffff");
-            renderColorList();
-            update();
         });
 
         document.getElementById("copy-btn").addEventListener("click", function () {
