@@ -275,13 +275,45 @@ window.ShadeToolsMC = (function () {
     }
 
     // Explicit per-character color, for modes Adventure's own gradient
-    // tag can't express (HSL/OKLab), and for animated frames generally.
+    // tag can't express (HSL/OKLab), and as a fallback for animated
+    // frames with custom (non-evenly-spaced) color-stop positions.
     function miniMessagePerChar(text, colors) {
         var out = "";
         for (var i = 0; i < text.length; i++) {
             var ch = text[i];
             out += ch === " " ? ch : "<" + colors[i] + ">" + ch;
         }
+        return out;
+    }
+
+    // Single flat color for the whole string — used for FULL_TEXT_CYCLE
+    // animation frames, where every character already shares one color.
+    function miniMessageColorTag(text, hex) {
+        return "<color:" + hex + ">" + text + "</color>";
+    }
+
+    // One shifted color per original color stop for animation frame `n`,
+    // so Adventure's native <gradient:...> tag can render the same
+    // scanning effect itself instead of needing an explicit color before
+    // every character. Ported from birdflop/web's AnimTABUtils.
+    // formatFrames: each original stop gets its own copy of the gradient,
+    // offset by a fraction of the total steps proportional to its index,
+    // so the N stops sweep past each other in sync with the frame scan.
+    // Note Adventure's <gradient> tag itself always interpolates the
+    // pixels *between* these stops in plain RGB, so in HSL/OKLab modes
+    // the in-game look is a close approximation rather than an exact
+    // match to the tool's own preview.
+    function shiftedGradientStops(n, hexColors, mode, totalSteps) {
+        var stops = prepareStops(hexColors, mode);
+        var numColors = hexColors.length;
+        var out = [];
+        for (var i = 0; i < numColors; i++) {
+            var offset = totalSteps <= 0 ? 0 : (n + i * (totalSteps / numColors)) % totalSteps;
+            var step = easedStep(offset, totalSteps);
+            var t = totalSteps <= 0 ? 0 : step / totalSteps;
+            out.push(colorAtT(t, stops, mode));
+        }
+        if (out.length < 2) out.push(out[0]);
         return out;
     }
 
@@ -326,7 +358,9 @@ window.ShadeToolsMC = (function () {
         if (loopAmount < 1) loopAmount = 1;
 
         var frames = [];
+        var steps = [];
         for (var n = 0; n < loopAmount; n++) {
+            steps.push(n);
             if (style === ANIMATION_STYLES.FULL_TEXT_CYCLE) {
                 var soloStep = easedStep(n, totalSteps);
                 var soloT = totalSteps <= 0 ? 0 : soloStep / totalSteps;
@@ -347,13 +381,19 @@ window.ShadeToolsMC = (function () {
             frames.push(frameColors);
         }
 
+        // `steps` tracks each frame's original generation index (n) so
+        // that shiftedGradientStops() can be called with the right n for
+        // a given output frame even after this reordering — the frame
+        // at output position k is not generally frame n=k any more.
         if (style === ANIMATION_STYLES.LEFT_TO_RIGHT) {
             frames.reverse();
+            steps.reverse();
         } else if (style === ANIMATION_STYLES.BOUNCING) {
             frames = frames.slice().reverse().concat(frames.slice());
+            steps = steps.slice().reverse().concat(steps.slice());
         }
 
-        return { segments: segments, frames: frames };
+        return { segments: segments, frames: frames, steps: steps, totalSteps: totalSteps };
     }
 
     // Expands one frame's per-segment colors into a per-character array,
@@ -499,6 +539,8 @@ window.ShadeToolsMC = (function () {
         wrapMiniMessageFormatting: wrapMiniMessageFormatting,
         miniMessageGradientTag: miniMessageGradientTag,
         miniMessagePerChar: miniMessagePerChar,
+        miniMessageColorTag: miniMessageColorTag,
+        shiftedGradientStops: shiftedGradientStops,
         jsonOutput: jsonOutput,
         jsonOutputCompact: jsonOutputCompact,
         ANIMATION_STYLES: ANIMATION_STYLES,
