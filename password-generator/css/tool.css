@@ -17,7 +17,27 @@
 /* ==========================================================
    Tool intro
    ========================================================== */
-.st-tool-section { padding: 3rem 0 5rem; }
+.st-tool-section {
+    padding: 3rem 0 5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.st-tool-section::before {
+    content: "";
+    position: absolute;
+    inset: -20% -10% auto auto;
+    width: 34rem;
+    height: 34rem;
+    background: radial-gradient(circle at 30% 30%, var(--st-accent) 0%, transparent 60%),
+                radial-gradient(circle at 65% 60%, var(--st-accent-2) 0%, transparent 55%);
+    opacity: 0.14;
+    pointer-events: none;
+    mask-image: linear-gradient(to bottom, black 0%, black 30%, transparent 85%);
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 30%, transparent 85%);
+}
+
+.st-tool-section .container { position: relative; z-index: 1; }
 
 .st-tool-intro { max-width: 640px; margin-bottom: 2rem; }
 

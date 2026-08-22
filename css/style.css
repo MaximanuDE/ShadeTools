@@ -200,6 +200,8 @@ main { flex: 1 0 auto; }
     overflow: hidden;
 }
 
+.st-hero .container { position: relative; z-index: 1; }
+
 .st-hero::before {
     content: "";
     position: absolute;
@@ -210,6 +212,8 @@ main { flex: 1 0 auto; }
                 radial-gradient(circle at 65% 60%, var(--st-accent-2) 0%, transparent 55%);
     opacity: 0.18;
     pointer-events: none;
+    mask-image: linear-gradient(to bottom, black 0%, black 30%, transparent 85%);
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 30%, transparent 85%);
 }
 
 .st-eyebrow {
