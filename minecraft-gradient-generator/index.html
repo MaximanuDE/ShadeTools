@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Generate Minecraft hex color gradient text for MOTDs, tab lists, scoreboards and plugin messages — MiniMessage and legacy § / &amp; formats. Runs entirely in your browser.">
+    <meta name="description" content="Generate Minecraft hex color gradient text with multiple color stops, RGB/HSL/OKLab interpolation, and text formatting — MiniMessage, legacy § / &amp; and raw JSON formats. Runs entirely in your browser.">
     <link rel="canonical" href="https://shadetools.maximanu.de/minecraft-gradient-generator/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="ShadeTools">
     <meta property="og:title" content="Minecraft Gradient Generator — ShadeTools">
-    <meta property="og:description" content="Generate Minecraft hex color gradient text for MOTDs, tab lists, scoreboards and plugin messages.">
+    <meta property="og:description" content="Generate Minecraft hex color gradient text with multiple color stops, multiple interpolation modes, and text formatting.">
     <meta property="og:url" content="https://shadetools.maximanu.de/minecraft-gradient-generator/">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Minecraft Gradient Generator — ShadeTools">
-    <meta name="twitter:description" content="Generate Minecraft hex color gradient text for MOTDs, tab lists, scoreboards and plugin messages.">
+    <meta name="twitter:description" content="Generate Minecraft hex color gradient text with multiple color stops and text formatting.">
     <meta name="theme-color" content="#f1f2f6" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#0a0b10" media="(prefers-color-scheme: dark)">
     <title>Minecraft Gradient Generator — ShadeTools</title>
@@ -42,7 +42,7 @@
                 <div class="st-tool-intro">
                     <p class="st-eyebrow"><i class="bi bi-palette2"></i> Local &amp; instant</p>
                     <h1 class="st-title">Minecraft Gradient Generator</h1>
-                    <p class="st-subtitle">Turn text into a smooth two-color gradient using Minecraft's hex color codes (1.16+) — for MOTDs, tab lists, scoreboards, and plugin messages. Nothing is sent to a server.</p>
+                    <p class="st-subtitle">Turn text into a hex color gradient with as many color stops as you like, three interpolation modes, and text formatting — for MOTDs, tab lists, scoreboards, and plugin messages. Nothing is sent to a server.</p>
                 </div>
 
                 <div class="st-panel">
@@ -53,17 +53,50 @@
                         <input type="text" class="form-control st-input" id="input-text" placeholder="Type something…" maxlength="200" value="ShadeTools">
                     </div>
 
-                    <div class="st-color-row">
-                        <div class="st-color-field">
-                            <label for="color-start" class="st-field-label-inline">Start color</label>
-                            <input type="color" id="color-start" class="st-color-input" value="#6339d9">
-                            <span class="st-color-hex" id="color-start-hex">#6339D9</span>
+                    <div class="st-field">
+                        <div class="st-field-label">
+                            <label>Colors</label>
+                            <button type="button" class="st-btn-text" id="add-color">+ Add color</button>
                         </div>
-                        <i class="bi bi-arrow-right st-color-arrow" aria-hidden="true"></i>
-                        <div class="st-color-field">
-                            <label for="color-end" class="st-field-label-inline">End color</label>
-                            <input type="color" id="color-end" class="st-color-input" value="#16c2d1">
-                            <span class="st-color-hex" id="color-end-hex">#16C2D1</span>
+                        <div class="st-color-list" id="color-list"></div>
+                    </div>
+
+                    <div class="st-field">
+                        <div class="st-field-label">
+                            <label for="mode-select">Gradient mode</label>
+                        </div>
+                        <select class="form-select st-select st-select-wide" id="mode-select">
+                            <option value="rgb">RGB — linear</option>
+                            <option value="hsl">HSL — vivid hues</option>
+                            <option value="oklab" selected>OKLab — perceptually smooth</option>
+                        </select>
+                    </div>
+
+                    <div class="st-field">
+                        <div class="st-field-label">
+                            <label>Formatting</label>
+                        </div>
+                        <div class="st-toggle-grid">
+                            <label class="st-toggle">
+                                <input type="checkbox" id="fmt-bold">
+                                <span>Bold</span>
+                            </label>
+                            <label class="st-toggle">
+                                <input type="checkbox" id="fmt-italic">
+                                <span>Italic</span>
+                            </label>
+                            <label class="st-toggle">
+                                <input type="checkbox" id="fmt-underline">
+                                <span>Underline</span>
+                            </label>
+                            <label class="st-toggle">
+                                <input type="checkbox" id="fmt-strikethrough">
+                                <span>Strikethrough</span>
+                            </label>
+                            <label class="st-toggle">
+                                <input type="checkbox" id="fmt-obfuscate">
+                                <span>Obfuscated</span>
+                            </label>
                         </div>
                     </div>
 
@@ -77,6 +110,7 @@
                             <option value="minimessage" selected>MiniMessage (Paper / Adventure)</option>
                             <option value="section">Legacy — § section sign</option>
                             <option value="amp">Legacy — &amp; ampersand</option>
+                            <option value="json">Raw JSON (text component)</option>
                         </select>
                     </div>
 
@@ -92,7 +126,7 @@
                         </div>
                     </div>
 
-                    <p class="st-note" id="format-note">MiniMessage works directly in Paper/Adventure-based plugin configs — the client resolves the gradient itself.</p>
+                    <p class="st-note" id="format-note"></p>
                 </div>
             </div>
         </section>

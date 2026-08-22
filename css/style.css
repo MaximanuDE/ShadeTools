@@ -778,6 +778,19 @@ a.st-tool-card:hover .st-tool-arrow {
 .st-btn-generate:hover { opacity: 0.92; }
 .st-btn-generate:active { transform: translateY(1px); }
 
+.st-btn-text {
+    background: none;
+    border: none;
+    color: var(--st-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.2rem 0.4rem;
+}
+
+.st-btn-text:hover { color: var(--st-accent); }
+.st-btn-text:disabled { opacity: 0.4; cursor: not-allowed; }
+.st-btn-text:disabled:hover { color: var(--st-muted); }
+
 /* ==========================================================
    Accessibility
    ========================================================== */

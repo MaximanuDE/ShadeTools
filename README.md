@@ -17,7 +17,7 @@ Grouped into categories, shown the same way in the header's Tools dropdown and o
 
 | Tool | Path | Description |
 |---|---|---|
-| Gradient Generator | [`/minecraft-gradient-generator/`](minecraft-gradient-generator/) | Turns text into a two-color hex gradient for Minecraft (1.16+), output as MiniMessage and as legacy `§`/`&` per-character color codes. |
+| Gradient Generator | [`/minecraft-gradient-generator/`](minecraft-gradient-generator/) | Turns text into a hex gradient (any number of color stops, RGB/HSL/OKLab blending) with bold/italic/underline/strikethrough/obfuscated formatting, for Minecraft (1.16+). Output as MiniMessage, legacy `§`/`&` per-character color codes, or raw JSON. |
 
 ## Project structure
 
@@ -99,6 +99,9 @@ Any other static file server works too (e.g. the "Live Server" extension in VS C
 
 ## Notes on the Minecraft gradient generator
 
-- The MiniMessage output (`<gradient:#aaa:#bbb>text</gradient>`) is the simplest to use directly in Paper/Adventure-based plugin configs, since the client resolves the gradient itself.
-- The legacy outputs insert an explicit hex color code before every non-space character (`§x§R§R§G§G§B§B` / `&x&R&R&G&G&B&B`), which is what Minecraft Java Edition 1.16+ expects for per-character RGB color in raw/legacy text.
+- Supports any number of color stops (2+), evenly distributed along the text, with a choice of three interpolation modes: RGB (linear, can look muddy between very different hues), HSL (keeps hues vivid via shortest-path hue interpolation), and OKLab (perceptually uniform — equal steps look like equal steps to the eye). The color math is ported from [birdflop/web](https://github.com/birdflop/web)'s `@birdflop/rgbirdflop` package, simplified from its class-per-color-space design into plain functions.
+- Formatting (bold/italic/underline/strikethrough/obfuscated) applies to the whole string, not per-character selection — a deliberate simplification of birdflop's per-selection rich-text formatting, which needs a full selection-tracking text editor to do properly.
+- In MiniMessage output, RGB mode emits a compact `<gradient:#aaa:#bbb>text</gradient>` tag, since Adventure's own gradient tag interpolates in plain RGB and matches exactly. HSL/OKLab modes emit an explicit `<#RRGGBB>` color before each character instead, since Adventure has no equivalent for those color spaces.
+- The legacy outputs insert an explicit hex color code before every non-space character (`§x§R§R§G§G§B§B` / `&x&R&R&G&G&B&B`); a color code resets formatting state in legacy text, so format codes are reinserted after every color code rather than once at the start.
+- The obfuscated-text preview continuously cycles random glyphs (skipped under `prefers-reduced-motion`), echoing how Minecraft actually renders obfuscated text in-game.
 
