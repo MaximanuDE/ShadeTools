@@ -21,23 +21,6 @@
 
 .st-tool-intro { max-width: 640px; margin-bottom: 2rem; }
 
-.st-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-family: var(--st-font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--st-accent-strong);
-    background: color-mix(in srgb, var(--st-accent) 14%, transparent);
-    border: 1px solid color-mix(in srgb, var(--st-accent) 30%, transparent);
-    border-radius: 999px;
-    padding: 0.3rem 0.75rem;
-    margin-bottom: 1rem;
-    font-weight: 500;
-}
-
 .st-title {
     font-weight: 700;
     font-size: clamp(2rem, 4.5vw, 2.75rem);
@@ -166,7 +149,9 @@
 }
 
 .st-mode-btn.active {
-    background: var(--st-surface);
+    background: linear-gradient(135deg,
+        color-mix(in srgb, var(--st-accent) 14%, var(--st-surface)),
+        color-mix(in srgb, var(--st-accent-2) 10%, var(--st-surface)));
     color: var(--st-text);
     box-shadow: 0 1px 2px var(--st-border);
 }
