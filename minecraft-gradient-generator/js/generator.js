@@ -3,19 +3,20 @@
 
     var MC = window.ShadeToolsMC;
 
-    function miniMessageOutput(text, hexColors, colors, mode, formatting) {
-        var inner = mode === "rgb"
-            // Adventure's native <gradient:...> tag interpolates in plain
-            // RGB, matching this mode exactly — a compact tag is enough.
-            ? MC.miniMessageGradientTag(hexColors, text)
-            // HSL/OKLab have no MiniMessage-native equivalent, so emit the
-            // computed color explicitly before each character instead.
-            : MC.miniMessagePerChar(text, colors);
+    // Always the compact native <gradient:c1:c2:...> tag, using the
+    // original color stops directly (no animation, so no shifting is
+    // needed — unlike the animated tool). Adventure's own gradient tag
+    // always interpolates the pixels between those stops in plain RGB,
+    // so in HSL/OKLab mode the in-game look is a close approximation of
+    // this tool's own preview rather than an exact match; every other
+    // output format still emits an exact per-character color instead.
+    function miniMessageOutput(text, hexColors, formatting) {
+        var inner = MC.miniMessageGradientTag(hexColors, text);
         return MC.wrapMiniMessageFormatting(inner, formatting);
     }
 
     var FORMAT_NOTES = {
-        minimessage: "MiniMessage works directly in Paper/Adventure-based plugin configs. RGB mode emits a compact <gradient> tag; HSL/OKLab emit an explicit color before each character, since Adventure's own gradient tag only interpolates in RGB.",
+        minimessage: "MiniMessage works directly in Paper/Adventure-based plugin configs, as a single <gradient:c1:c2:...> tag. Adventure's own gradient always interpolates in plain RGB, so in HSL/OKLab mode the in-game look is a close approximation of the preview above rather than an exact match.",
         shorthex: "The <#rrggbb> shorthand tag before each character, standalone rather than wrapped in MiniMessage's own gradient tag — for plugins that accept this hex shorthand mixed with legacy & format codes.",
         section: "Legacy format using § (Minecraft Java Edition 1.16+): a hex color code is inserted before every character. Use this for raw text components and resource packs.",
         amp: "Legacy format using & (Minecraft Java Edition 1.16+): a hex color code is inserted before every character. Use this wherever a plugin auto-translates ampersand codes — most Bukkit/Spigot configs.",
@@ -25,7 +26,7 @@
     };
 
     function buildOutput(format, text, hexColors, colors, mode, formatting) {
-        if (format === "minimessage") return miniMessageOutput(text, hexColors, colors, mode, formatting);
+        if (format === "minimessage") return miniMessageOutput(text, hexColors, formatting);
         if (format === "shorthex") return MC.shortHexTagOutput(text, colors, formatting);
         if (format === "json") return MC.jsonOutput(text, colors, formatting);
         if (format === "ampflat") return MC.flatHexOutput(text, colors, formatting);
