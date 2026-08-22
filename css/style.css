@@ -189,12 +189,68 @@ main { flex: 1 0 auto; }
 
 .st-nav-dropdown-toggle {
     background: var(--st-surface-2);
-    border: none;
+    border: 1px solid var(--st-border);
     font-family: inherit;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+}
+
+.st-nav-dropdown-toggle:hover { border-color: var(--st-accent); }
+
+/* ==========================================================
+   Light/dark theme toggle switch
+   ========================================================== */
+.st-theme-toggle {
+    --st-toggle-w: 3rem;
+    --st-toggle-h: 1.6rem;
+    --st-toggle-pad: 0.2rem;
+    --st-toggle-thumb: calc(var(--st-toggle-h) - 2 * var(--st-toggle-pad));
+    position: relative;
+    width: var(--st-toggle-w);
+    height: var(--st-toggle-h);
+    flex-shrink: 0;
+    border-radius: 999px;
+    border: 1px solid var(--st-border);
+    background: var(--st-surface-2);
+    padding: 0 0.4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.st-theme-toggle:hover { border-color: var(--st-accent); }
+
+.st-theme-toggle-icon {
+    position: relative;
+    z-index: 1;
+    font-size: 0.7rem;
+    line-height: 1;
+    color: var(--st-muted);
+    transition: color 0.15s ease;
+}
+
+.st-theme-toggle-icon-sun { color: #e8a33d; }
+[data-bs-theme="dark"] .st-theme-toggle-icon-sun { color: var(--st-muted); }
+[data-bs-theme="dark"] .st-theme-toggle-icon-moon { color: #b7c2ff; }
+
+.st-theme-toggle-thumb {
+    position: absolute;
+    top: var(--st-toggle-pad);
+    left: var(--st-toggle-pad);
+    width: var(--st-toggle-thumb);
+    height: var(--st-toggle-thumb);
+    border-radius: 50%;
+    background: var(--st-surface);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+}
+
+[data-bs-theme="dark"] .st-theme-toggle-thumb {
+    transform: translateX(calc(var(--st-toggle-w) - var(--st-toggle-thumb) - 2 * var(--st-toggle-pad)));
 }
 
 .st-nav-caret { font-size: 0.65rem; transition: transform 0.15s ease; }
@@ -902,7 +958,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 @media (prefers-reduced-motion: reduce) {
     .st-nav-link, .st-tool-card, .st-tool-card::before, .st-tool-arrow,
     .st-nav-caret, .st-dropdown-panel, .st-btn-icon, .st-btn-generate,
-    .st-dropdown-viewall, .st-dropdown-viewall i {
+    .st-dropdown-viewall, .st-dropdown-viewall i,
+    .st-theme-toggle-thumb, .st-theme-toggle-icon {
         transition: none;
     }
 }

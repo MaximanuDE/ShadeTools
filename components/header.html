@@ -10,8 +10,13 @@
             <span class="st-logo-word">Shade<span class="st-logo-accent">Tools</span></span>
         </a>
 
-        <nav class="st-nav d-none d-md-flex align-items-center gap-1">
+        <nav class="st-nav d-none d-md-flex align-items-center gap-2">
             <a href="/" class="st-nav-link">Home</a>
+            <button type="button" class="st-theme-toggle" id="st-theme-toggle-desktop" aria-label="Switch between light and dark theme" aria-pressed="false">
+                <i class="bi bi-sun-fill st-theme-toggle-icon st-theme-toggle-icon-sun" aria-hidden="true"></i>
+                <i class="bi bi-moon-stars-fill st-theme-toggle-icon st-theme-toggle-icon-moon" aria-hidden="true"></i>
+                <span class="st-theme-toggle-thumb"></span>
+            </button>
             <div class="st-nav-dropdown">
                 <button class="st-nav-link st-nav-dropdown-toggle" type="button" aria-expanded="false" aria-haspopup="true">
                     Tools <i class="bi bi-chevron-down st-nav-caret"></i>
@@ -60,9 +65,16 @@
             </div>
         </nav>
 
-        <button class="st-nav-toggle d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#st-nav-collapse" aria-controls="st-nav-collapse" aria-expanded="false" aria-label="Toggle navigation">
-            <i class="bi bi-list"></i>
-        </button>
+        <div class="d-flex d-md-none align-items-center gap-2">
+            <button type="button" class="st-theme-toggle" id="st-theme-toggle-mobile" aria-label="Switch between light and dark theme" aria-pressed="false">
+                <i class="bi bi-sun-fill st-theme-toggle-icon st-theme-toggle-icon-sun" aria-hidden="true"></i>
+                <i class="bi bi-moon-stars-fill st-theme-toggle-icon st-theme-toggle-icon-moon" aria-hidden="true"></i>
+                <span class="st-theme-toggle-thumb"></span>
+            </button>
+            <button class="st-nav-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#st-nav-collapse" aria-controls="st-nav-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="bi bi-list"></i>
+            </button>
+        </div>
     </div>
 
     <div class="collapse d-md-none" id="st-nav-collapse">
