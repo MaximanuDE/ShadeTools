@@ -152,19 +152,22 @@ main { flex: 1 0 auto; }
 .st-nav-link.active { color: var(--st-accent-ink); background: linear-gradient(135deg, var(--st-accent), var(--st-accent-2)); }
 
 .st-nav-toggle {
-    background: none;
-    border: none;
+    width: 2.4rem;
+    height: 2.4rem;
+    flex-shrink: 0;
+    border-radius: 10px;
+    border: 1px solid var(--st-border);
+    background: var(--st-surface-2);
     color: var(--st-text);
-    font-size: 1.4rem;
+    font-size: 1.15rem;
     line-height: 1;
-    padding: 0.3rem 0.5rem;
-    border-radius: 8px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    transition: border-color 0.15s ease, color 0.15s ease;
 }
 
-.st-nav-toggle:hover { background: var(--st-surface-2); }
+.st-nav-toggle:hover { border-color: var(--st-accent); color: var(--st-accent); }
 
 .st-nav-mobile {
     display: flex;
@@ -289,6 +292,16 @@ main { flex: 1 0 auto; }
     padding: 0.45rem 0.6rem;
 }
 
+/* The page you're currently on gets a tinted background and full-
+   contrast text (not the solid gradient + dark "ink" text the Home/
+   Tools nav buttons use) — that dark-on-bright-gradient combination is
+   tuned for a small button, but read as dull grayish text in this
+   list context instead of a clear highlight. */
+.st-dropdown-item.active {
+    background: color-mix(in srgb, var(--st-accent) 14%, transparent);
+    color: var(--st-text);
+}
+
 .st-dropdown-item-icon {
     flex-shrink: 0;
     width: 2.1rem;
@@ -300,11 +313,6 @@ main { flex: 1 0 auto; }
     align-items: center;
     justify-content: center;
     font-size: 0.95rem;
-}
-
-.st-dropdown-item.active .st-dropdown-item-icon {
-    background: var(--st-accent-ink);
-    color: var(--st-accent);
 }
 
 .st-dropdown-item-text {
