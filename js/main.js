@@ -19,20 +19,11 @@
             });
     }
 
-    function updateThemeIndicator(isDark) {
-        var indicator = document.getElementById("theme-indicator");
-        if (indicator) {
-            indicator.innerHTML = '<i class="bi bi-circle-half"></i> Following system theme (' +
-                (isDark ? "dark" : "light") + ")";
-        }
-    }
-
     function initTheme() {
         var mq = window.matchMedia("(prefers-color-scheme: dark)");
 
         function apply(matches) {
             document.documentElement.setAttribute("data-bs-theme", matches ? "dark" : "light");
-            updateThemeIndicator(matches);
         }
 
         apply(mq.matches);
@@ -115,10 +106,7 @@
         Promise.all([
             loadComponent("header", "components/header.html"),
             loadComponent("footer", "components/footer.html")
-        ]).then(function () {
-            var mq = window.matchMedia("(prefers-color-scheme: dark)");
-            updateThemeIndicator(mq.matches);
-        });
+        ]);
 
         animateHero();
     });
