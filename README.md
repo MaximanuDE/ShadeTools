@@ -26,6 +26,9 @@ The root of the site holds the shared base that every page depends on:
 
 ```
 index.html
+404.html
+robots.txt
+sitemap.xml
 components/
 ├── header.html
 └── footer.html
@@ -37,9 +40,11 @@ js/
 ```
 
 - `components/header.html`, `components/footer.html` — the site-wide header and footer, fetched at runtime via absolute paths (`/components/header.html`) and injected into each page's `<div id="header"></div>` / `<div id="footer"></div>` mount points. The header's "Tools" entry is a dropdown (hover or click on desktop, a tap-open accordion on mobile via Bootstrap's collapse) grouping every tool by category.
-- `css/style.css` — design tokens (CSS custom properties, light and dark), base `html`/`body` rules, header/footer/dropdown styling, the homepage's own sections (hero, principles, tools grid), and the generic **tool page shell** (intro block, panel, output+copy row, form fields, primary button) shared by every `*-generator/` subpage.
+- `css/style.css` — design tokens (CSS custom properties, light and dark), base `html`/`body` rules, header/footer/dropdown styling, the homepage's own sections (hero, principles, tools grid), the 404 page's section, and the generic **tool page shell** (intro block, panel, output+copy row, form fields, primary button) shared by every `*-generator/` subpage.
 - `js/main.js` — component loading, theme sync, active-nav-link detection, the desktop dropdown's hover/click behavior, and `window.ShadeTools.copyToClipboard()` — a small shared helper (copy text, flash the trigger icon) every tool's own script calls into. Loaded by every page via `/js/main.js`.
-- `js/minecraft-color-utils.js` — RGB/HSL/OKLab color math, gradient sampling, animation-frame generation, and Minecraft output-format builders (MiniMessage, legacy `§`/`&`, JSON), exposed as `window.ShadeToolsMC`. Shared by both `minecraft-gradient-generator/` and `minecraft-animated-gradient-generator/` so the color science lives in one place; loaded via `/js/minecraft-color-utils.js` only by the pages that need it.
+- `js/minecraft-color-utils.js` — RGB/HSL/OKLab color math, gradient sampling, animation-frame generation, and Minecraft output-format builders (MiniMessage, legacy `§`/`&`, JSON, BBCode), exposed as `window.ShadeToolsMC`. Shared by both `minecraft-gradient-generator/` and `minecraft-animated-gradient-generator/` so the color science lives in one place; loaded via `/js/minecraft-color-utils.js` only by the pages that need it.
+- `404.html` — a styled not-found page using the same header/footer/design tokens as the rest of the site, marked `noindex` and linking back to the homepage and every tool. Most static hosts (GitHub Pages, Netlify, Vercel, etc.) pick this up automatically for unmatched routes; check your specific host's docs if it doesn't.
+- `robots.txt`, `sitemap.xml` — allow all crawlers and point them at the sitemap, which lists the homepage and every tool page with its canonical URL.
 
 Each tool subpage links this shared base with absolute paths (`/css/style.css`, `/js/main.js`) and adds only what's specific to that tool:
 
