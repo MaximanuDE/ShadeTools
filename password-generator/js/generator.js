@@ -292,8 +292,6 @@
 
                 document.getElementById("settings-characters").classList.toggle("d-none", mode !== "characters");
                 document.getElementById("settings-passphrase").classList.toggle("d-none", mode !== "passphrase");
-
-                generate();
             });
         });
     }
@@ -313,19 +311,7 @@
     }
 
     function initControls() {
-        var settingIds = [
-            "length-range", "opt-upper", "opt-lower", "opt-numbers", "opt-symbols", "opt-ambiguous",
-            "words-range", "separator-select", "opt-capitalize", "opt-append-number"
-        ];
-        settingIds.forEach(function (id) {
-            var el = document.getElementById(id);
-            if (!el) return;
-            var evt = el.tagName === "SELECT" || el.type === "checkbox" ? "change" : "input";
-            el.addEventListener(evt, generate);
-        });
-
         document.getElementById("generate-btn").addEventListener("click", generate);
-        document.getElementById("regen-btn").addEventListener("click", generate);
 
         document.getElementById("copy-btn").addEventListener("click", function () {
             copyToClipboard(currentText, document.getElementById("copy-btn"));
@@ -344,6 +330,5 @@
         initModeSwitch();
         initRanges();
         initControls();
-        generate();
     });
 })();
