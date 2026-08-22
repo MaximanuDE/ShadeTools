@@ -25,25 +25,13 @@
         return out;
     }
 
-    function renderOutput(text) {
-        var placeholder = document.getElementById("output-placeholder");
-        var chars = document.getElementById("output-chars");
-        if (!text) {
-            placeholder.style.display = "";
-            chars.textContent = "";
-            return;
-        }
-        placeholder.style.display = "none";
-        chars.textContent = text;
-    }
-
     document.addEventListener("DOMContentLoaded", function () {
         var input = document.getElementById("input-text");
         var currentOutput = "";
 
         input.addEventListener("input", function () {
             currentOutput = toSmallCaps(input.value);
-            renderOutput(currentOutput);
+            window.ShadeTools.renderOutput(currentOutput);
         });
 
         document.getElementById("copy-btn").addEventListener("click", function () {
