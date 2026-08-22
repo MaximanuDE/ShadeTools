@@ -2,41 +2,38 @@
     "use strict";
 
     var MC = window.ShadeToolsMC;
-    var SCRAMBLE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    /* ---------------------------------------------------------------
-     * Per-frame output builders — reuse the shared per-character
-     * builders by first expanding each frame's per-segment colors into
-     * a per-character array (buildAnimationFrames groups characters
-     * into color bands when "color band size" > 1).
-     * ------------------------------------------------------------- */
-    function frameLine(format, text, segments, frameColors, formatting) {
-        var perChar = MC.expandSegmentColors(segments, frameColors);
-        if (format === "minimessage") return MC.wrapMiniMessageFormatting(MC.miniMessagePerChar(text, perChar), formatting);
-        if (format === "shorthex") return MC.shortHexTagOutput(text, perChar, formatting);
-        if (format === "json") return MC.jsonOutputCompact(text, perChar, formatting);
-        if (format === "ampflat") return MC.flatHexOutput(text, perChar, formatting);
-        if (format === "bbcode") return MC.bbcodeOutput(text, perChar, formatting);
-        var prefix = format === "section" ? "§" : "&";
-        return MC.legacyOutput(text, perChar, prefix, formatting);
+    function buildGradientColors(length, hexColors, mode) {
+        return MC.buildGradientColors(length, hexColors, mode);
     }
 
-    // TAB plugin animations.yml block: `<name>:\n  change-interval: <n>\n  texts:\n  - "<frame>"...`
-    function tabYamlOutput(name, speed, frameLines) {
-        var lines = frameLines.map(function (line) {
-            return '  - "' + line.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"';
-        });
-        return (name || "gradient") + ":\n  change-interval: " + speed + "\n  texts:\n" + lines.join("\n");
+    function miniMessageOutput(text, hexColors, colors, mode, formatting) {
+        var inner = mode === "rgb"
+            // Adventure's native <gradient:...> tag interpolates in plain
+            // RGB, matching this mode exactly — a compact tag is enough.
+            ? MC.miniMessageGradientTag(hexColors, text)
+            // HSL/OKLab have no MiniMessage-native equivalent, so emit the
+            // computed color explicitly before each character instead.
+            : MC.miniMessagePerChar(text, colors);
+        return MC.wrapMiniMessageFormatting(inner, formatting);
+    }
+
+    function jsonOutput(text, colors, formatting) {
+        return MC.jsonOutput(text, colors, formatting);
+    }
+
+    function legacyOutput(text, colors, prefix, formatting) {
+        return MC.legacyOutput(text, colors, prefix, formatting);
     }
 
     var FORMAT_NOTES = {
-        minimessage: "MiniMessage works directly in Paper/Adventure-based plugin configs, including TAB when its MiniMessage support is enabled. Every animated frame uses an explicit color before each character, since Adventure's compact <gradient> tag can't express a scanning animation.",
-        shorthex: "The <#rrggbb> shorthand tag before each character in every frame, standalone rather than wrapped in a MiniMessage gradient tag.",
-        section: "Legacy format using § (Minecraft Java Edition 1.16+). Works with TAB out of the box; a hex color code is inserted before every character in each frame.",
-        amp: "Legacy format using & (Minecraft Java Edition 1.16+). Use this wherever a plugin auto-translates ampersand codes; a hex color code is inserted before every character in each frame.",
-        ampflat: "A flatter &#rrggbb color code before every character in each frame, without per-digit splitting.",
-        json: "Raw Minecraft text component JSON per frame. Most TAB versions expect a plain formatted string per line, not JSON — check your TAB version supports JSON animation frames before using this.",
-        bbcode: "BBCode for forum signatures: [COLOR=#rrggbb] around every character in each frame, wrapped in whole-string [BOLD]/[ITALIC]/[UNDERLINE]/[STRIKETHROUGH] tags. Not a TAB format — for pasting an animated-looking frame elsewhere."
+        minimessage: "MiniMessage works directly in Paper/Adventure-based plugin configs. RGB mode emits a compact <gradient> tag; HSL/OKLab emit an explicit color before each character, since Adventure's own gradient tag only interpolates in RGB.",
+        shorthex: "The <#rrggbb> shorthand tag before each character, standalone rather than wrapped in MiniMessage's own gradient tag — for plugins that accept this hex shorthand mixed with legacy & format codes.",
+        section: "Legacy format using § (Minecraft Java Edition 1.16+): a hex color code is inserted before every character. Use this for raw text components and resource packs.",
+        amp: "Legacy format using & (Minecraft Java Edition 1.16+): a hex color code is inserted before every character. Use this wherever a plugin auto-translates ampersand codes — most Bukkit/Spigot configs.",
+        ampflat: "A flatter &#rrggbb color code before every character, without per-digit splitting — for Discord bots and non-Adventure plugins that accept this shorthand instead of the split &x&r&r&g&g&b&b form.",
+        json: "Raw Minecraft text component JSON, as used in /tellraw, books, and signs that accept JSON text.",
+        bbcode: "BBCode for forum signatures: [COLOR=#rrggbb] around every character, wrapped in whole-string [BOLD]/[ITALIC]/[UNDERLINE]/[STRIKETHROUGH] tags. BBCode has no obfuscated-text equivalent."
     };
 
     /* ---------------------------------------------------------------
@@ -47,11 +44,8 @@
     };
 
     var currentOutput = "";
-    var scrambleTimer = null;
-    var frameTimer = null;
-    var currentFrames = null;
-    var currentSegments = null;
-    var currentFrameIndex = 0;
+    var obfuscateTimer = null;
+    var SCRAMBLE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     function prefersReducedMotion() {
         return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -117,52 +111,58 @@
     }
 
     /* ---------------------------------------------------------------
-     * Preview
+     * Preview + output
      * ------------------------------------------------------------- */
-    function stopTimers() {
-        if (scrambleTimer) { clearInterval(scrambleTimer); scrambleTimer = null; }
-        if (frameTimer) { clearInterval(frameTimer); frameTimer = null; }
-    }
-
-    function renderPreviewFrame(text, formatting) {
+    function renderPreview(text, colors, formatting) {
         var preview = document.getElementById("preview");
-        if (!currentFrames || !currentFrames.length) return;
-
-        var frameColors = currentFrames[currentFrameIndex % currentFrames.length];
-        var perChar = MC.expandSegmentColors(currentSegments, frameColors);
-
         preview.innerHTML = "";
-        var chars = text.split("");
-        chars.forEach(function (ch, i) {
-            var span = document.createElement("span");
-            span.textContent = formatting.obfuscate && ch !== " " && !prefersReducedMotion()
-                ? SCRAMBLE_GLYPHS[Math.floor(Math.random() * SCRAMBLE_GLYPHS.length)]
-                : ch;
-            span.style.color = perChar[i] || "inherit";
-            preview.appendChild(span);
-        });
-    }
-
-    function startPreview(text, formatting, speedTicks) {
-        stopTimers();
-        applyPreviewClasses(formatting);
-
-        renderPreviewFrame(text, formatting);
-        if (prefersReducedMotion()) return;
-
-        var ms = Math.max(50, speedTicks * 50);
-        frameTimer = setInterval(function () {
-            currentFrameIndex = (currentFrameIndex + 1) % currentFrames.length;
-            renderPreviewFrame(text, formatting);
-        }, ms);
-    }
-
-    function applyPreviewClasses(formatting) {
-        var preview = document.getElementById("preview");
         preview.classList.toggle("st-fmt-bold", formatting.bold);
         preview.classList.toggle("st-fmt-italic", formatting.italic);
         preview.classList.toggle("st-fmt-underline", formatting.underline);
         preview.classList.toggle("st-fmt-strikethrough", formatting.strikethrough);
+
+        if (!text) {
+            var placeholder = document.createElement("span");
+            placeholder.className = "st-output-placeholder";
+            placeholder.textContent = "Type something to preview the gradient";
+            preview.appendChild(placeholder);
+            stopObfuscateAnimation();
+            return;
+        }
+
+        var spans = [];
+        var chars = text.split("");
+        chars.forEach(function (ch, i) {
+            var span = document.createElement("span");
+            span.textContent = ch;
+            span.style.color = colors[i];
+            preview.appendChild(span);
+            spans.push(span);
+        });
+
+        if (formatting.obfuscate) {
+            startObfuscateAnimation(spans, chars);
+        } else {
+            stopObfuscateAnimation();
+        }
+    }
+
+    function stopObfuscateAnimation() {
+        if (obfuscateTimer) {
+            clearInterval(obfuscateTimer);
+            obfuscateTimer = null;
+        }
+    }
+
+    function startObfuscateAnimation(spans, chars) {
+        stopObfuscateAnimation();
+        if (prefersReducedMotion()) return;
+        obfuscateTimer = setInterval(function () {
+            spans.forEach(function (span, i) {
+                if (chars[i] === " ") return;
+                span.textContent = SCRAMBLE_GLYPHS[Math.floor(Math.random() * SCRAMBLE_GLYPHS.length)];
+            });
+        }, 60);
     }
 
     function renderOutput(code) {
@@ -177,47 +177,28 @@
         chars.textContent = code;
     }
 
-    /* ---------------------------------------------------------------
-     * Main update
-     * ------------------------------------------------------------- */
+    function buildOutput(format, text, hexColors, colors, mode, formatting) {
+        if (format === "minimessage") return miniMessageOutput(text, hexColors, colors, mode, formatting);
+        if (format === "shorthex") return MC.shortHexTagOutput(text, colors, formatting);
+        if (format === "json") return jsonOutput(text, colors, formatting);
+        if (format === "ampflat") return MC.flatHexOutput(text, colors, formatting);
+        if (format === "bbcode") return MC.bbcodeOutput(text, colors, formatting);
+        var prefix = format === "section" ? "§" : "&";
+        return legacyOutput(text, colors, prefix, formatting);
+    }
+
     function update() {
         var text = document.getElementById("input-text").value;
         var mode = document.getElementById("mode-select").value;
-        var style = Number(document.getElementById("style-select").value);
-        var band = Math.max(1, Math.min(10, Number(document.getElementById("band-input").value) || 1));
-        var speed = Math.max(1, Math.min(1000, Number(document.getElementById("speed-input").value) || 1));
-        var name = document.getElementById("name-input").value.trim() || "gradient";
         var format = document.getElementById("format-select").value;
         var formatting = getFormatting();
 
-        var preview = document.getElementById("preview");
+        var colors = buildGradientColors(text.length, state.colors, mode);
+        renderPreview(text, colors, formatting);
 
-        if (!text) {
-            stopTimers();
-            currentFrames = null;
-            currentSegments = null;
-            preview.innerHTML = '<span class="st-output-placeholder">Type something to preview the animation</span>';
-            currentOutput = "";
-            renderOutput("");
-            document.getElementById("frame-note").textContent = "";
-            return;
-        }
-
-        var built = MC.buildAnimationFrames(text, state.colors, mode, band, style);
-        currentSegments = built.segments;
-        currentFrames = built.frames;
-        currentFrameIndex = 0;
-
-        startPreview(text, formatting, speed);
-
-        var frameLines = currentFrames.map(function (frameColors) {
-            return frameLine(format, text, currentSegments, frameColors, formatting);
-        });
-        currentOutput = tabYamlOutput(name, speed, frameLines);
+        currentOutput = text ? buildOutput(format, text, state.colors, colors, mode, formatting) : "";
         renderOutput(currentOutput);
-
-        var noteEl = document.getElementById("frame-note");
-        noteEl.textContent = currentFrames.length + " frame" + (currentFrames.length === 1 ? "" : "s") + " generated. " + (FORMAT_NOTES[format] || "");
+        document.getElementById("format-note").textContent = FORMAT_NOTES[format];
     }
 
     /* ---------------------------------------------------------------
@@ -226,11 +207,9 @@
     document.addEventListener("DOMContentLoaded", function () {
         renderColorList();
 
-        ["input-text", "mode-select", "style-select", "band-input", "speed-input", "name-input", "format-select"].forEach(function (id) {
-            var el = document.getElementById(id);
-            el.addEventListener("input", update);
-            el.addEventListener("change", update);
-        });
+        document.getElementById("input-text").addEventListener("input", update);
+        document.getElementById("mode-select").addEventListener("change", update);
+        document.getElementById("format-select").addEventListener("change", update);
         ["fmt-bold", "fmt-italic", "fmt-underline", "fmt-strikethrough", "fmt-obfuscate"].forEach(function (id) {
             document.getElementById(id).addEventListener("change", update);
         });
