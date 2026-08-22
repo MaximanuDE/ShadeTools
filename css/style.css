@@ -31,6 +31,40 @@
     --st-success: #52c98a;
 }
 
+/* Monocraft — an open-source (SIL OFL) monospace font inspired by the
+   Minecraft UI typeface, used for the gradient previews on the Minecraft
+   tool pages so they read like they would in-game. Not the real Mojang
+   font (that's proprietary and not redistributable); this is a faithful
+   fan-made look-alike. https://github.com/IdreesInc/Monocraft */
+@font-face {
+    font-family: "Monocraft";
+    src: url("https://cdn.jsdelivr.net/gh/IdreesInc/Monocraft@v4.2.1/dist/Monocraft-ttf/Monocraft.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Monocraft";
+    src: url("https://cdn.jsdelivr.net/gh/IdreesInc/Monocraft@v4.2.1/dist/Monocraft-ttf/weights/Monocraft-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Monocraft";
+    src: url("https://cdn.jsdelivr.net/gh/IdreesInc/Monocraft@v4.2.1/dist/Monocraft-ttf/weights/Monocraft-Italic.ttf") format("truetype");
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Monocraft";
+    src: url("https://cdn.jsdelivr.net/gh/IdreesInc/Monocraft@v4.2.1/dist/Monocraft-ttf/weights/Monocraft-Bold-Italic.ttf") format("truetype");
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
 * { -webkit-tap-highlight-color: transparent; }
 
 html, body {
@@ -671,11 +705,24 @@ a.st-tool-card:hover .st-tool-arrow {
     word-break: break-word;
     align-items: flex-start;
     min-height: 4.5rem;
+    max-height: 18rem;
+    overflow-y: auto;
 }
 
 .st-output-placeholder { color: var(--st-muted); font-family: var(--st-font-display); font-size: 0.95rem; }
 
 .st-output-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+
+/* A multiline output can still be many lines tall even capped at
+   max-height — without this the row's default align-items:stretch pulls
+   the copy button along with it into a long thin bar instead of a
+   normal icon button. Pin it to a compact square at the top instead. */
+.st-output-row:has(.st-output-multiline) .st-output-actions {
+    align-self: flex-start;
+}
+.st-output-row:has(.st-output-multiline) .st-btn-icon {
+    height: 3rem;
+}
 
 .st-btn-icon {
     width: 3rem;
