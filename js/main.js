@@ -19,6 +19,22 @@
             });
     }
 
+    // Marks whichever header nav link matches the current page as active.
+    // The header markup itself carries no per-page state, since it's the
+    // same fetched partial on every page.
+    function markActiveNavLink() {
+        var links = document.querySelectorAll(".st-nav-link");
+        links.forEach(function (link) {
+            var isActive = link.getAttribute("href") === location.pathname;
+            link.classList.toggle("active", isActive);
+            if (isActive) {
+                link.setAttribute("aria-current", "page");
+            } else {
+                link.removeAttribute("aria-current");
+            }
+        });
+    }
+
     function initTheme() {
         var mq = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -104,9 +120,9 @@
         initTheme();
 
         Promise.all([
-            loadComponent("header", "components/header.html"),
-            loadComponent("footer", "components/footer.html")
-        ]);
+            loadComponent("header", "/components/header.html"),
+            loadComponent("footer", "/components/footer.html")
+        ]).then(markActiveNavLink);
 
         animateHero();
     });

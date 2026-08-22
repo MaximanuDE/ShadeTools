@@ -2,40 +2,6 @@
     "use strict";
 
     /* ---------------------------------------------------------------
-     * Components: load header/footer partials, then sync theme
-     * ------------------------------------------------------------- */
-    function loadComponent(id, path) {
-        return fetch(path)
-            .then(function (res) {
-                if (!res.ok) throw new Error("Failed to load " + path);
-                return res.text();
-            })
-            .then(function (html) {
-                var target = document.getElementById(id);
-                if (target) target.innerHTML = html;
-            })
-            .catch(function (err) {
-                console.error(err);
-            });
-    }
-
-    function initTheme() {
-        var mq = window.matchMedia("(prefers-color-scheme: dark)");
-
-        function apply(matches) {
-            document.documentElement.setAttribute("data-bs-theme", matches ? "dark" : "light");
-        }
-
-        apply(mq.matches);
-        if (mq.addEventListener) {
-            mq.addEventListener("change", function (e) { apply(e.matches); });
-        } else if (mq.addListener) {
-            // Safari < 14 fallback
-            mq.addListener(function (e) { apply(e.matches); });
-        }
-    }
-
-    /* ---------------------------------------------------------------
      * Fixed local word list for passphrases (256 words -> exactly
      * 8 bits of entropy per word, nothing fetched from the network).
      * ------------------------------------------------------------- */
@@ -375,13 +341,6 @@
      * Init
      * ------------------------------------------------------------- */
     document.addEventListener("DOMContentLoaded", function () {
-        initTheme();
-
-        Promise.all([
-            loadComponent("header", "components/header.html"),
-            loadComponent("footer", "components/footer.html")
-        ]);
-
         initModeSwitch();
         initRanges();
         initControls();

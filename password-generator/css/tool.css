@@ -1,135 +1,17 @@
-:root {
-    --st-bg: #f1f2f6;
-    --st-surface: #ffffff;
-    --st-surface-2: #e4e6ed;
-    --st-text: #14151c;
-    --st-muted: #5c6070;
-    --st-border: rgba(20, 21, 28, 0.12);
-    --st-accent: #6339d9;
-    --st-accent-strong: #4c26b0;
-    --st-accent-ink: #ffffff;
-    --st-accent-2: #16c2d1;
-    --st-accent-2-ink: #04222a;
+/* Tool-specific styles only. Design tokens, base html/body rules and the
+   header/footer come from the shared /css/style.css, loaded before this
+   file — see the <link> order in index.html. */
 
+:root {
     --st-danger: #d1373f;
     --st-warning: #c8871a;
     --st-success: #2f8f5b;
-
-    --st-font-display: "Space Grotesk", system-ui, sans-serif;
-    --st-font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 }
 
 [data-bs-theme="dark"] {
-    --st-bg: #0a0b10;
-    --st-surface: #14151d;
-    --st-surface-2: #1c1e29;
-    --st-text: #eceef5;
-    --st-muted: #9498ab;
-    --st-border: rgba(236, 238, 245, 0.14);
-    --st-accent: #9d7bff;
-    --st-accent-strong: #b79dff;
-    --st-accent-ink: #150a33;
-    --st-accent-2: #4ce0ef;
-    --st-accent-2-ink: #04222a;
-
     --st-danger: #ff6b6b;
     --st-warning: #f2b544;
     --st-success: #52c98a;
-}
-
-* { -webkit-tap-highlight-color: transparent; }
-
-html, body {
-    background: var(--st-bg);
-    color: var(--st-text);
-    font-family: var(--st-font-display);
-}
-
-body {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-main { flex: 1 0 auto; }
-
-.st-muted { color: var(--st-muted); }
-
-/* ==========================================================
-   Header / Footer (shared shell, duplicated per page)
-   ========================================================== */
-.st-header {
-    background: var(--st-bg);
-    border-bottom: 1px solid var(--st-border);
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    backdrop-filter: blur(8px);
-}
-
-.st-header-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 0;
-}
-
-.st-logo {
-    font-weight: 700;
-    font-size: 1.15rem;
-    color: var(--st-text);
-    letter-spacing: -0.01em;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-}
-
-.st-logo-mark { display: inline-flex; line-height: 0; }
-.st-logo-accent { color: var(--st-accent); }
-
-.st-nav-link {
-    color: var(--st-muted);
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.9rem;
-    padding: 0.4rem 0.85rem;
-    border-radius: 999px;
-    transition: color 0.15s ease, background-color 0.15s ease;
-}
-
-.st-nav-link:hover { color: var(--st-text); background: var(--st-surface-2); }
-.st-nav-link.active { color: var(--st-accent-ink); background: var(--st-accent); }
-
-.st-footer {
-    background: var(--st-bg);
-    border-top: 1px solid var(--st-border);
-}
-
-.st-footer-inner {
-    padding: 2rem 0;
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 0.75rem;
-    align-items: center;
-    text-align: center;
-}
-
-.st-footer-links {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.85rem;
-}
-
-.st-footer-links a { color: var(--st-muted); text-decoration: none; }
-.st-footer-links a:hover { color: var(--st-text); }
-
-@media (min-width: 768px) {
-    .st-footer-inner {
-        flex-direction: row;
-        justify-content: space-between;
-        text-align: left;
-    }
 }
 
 /* ==========================================================
@@ -435,13 +317,13 @@ main { flex: 1 0 auto; }
 /* ==========================================================
    Accessibility
    ========================================================== */
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+input:focus-visible, select:focus-visible {
     outline: 2px solid var(--st-accent);
     outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .st-nav-link, .st-mode-btn, .st-btn-icon, .st-btn-generate, .st-strength-fill {
+    .st-mode-btn, .st-btn-icon, .st-btn-generate, .st-strength-fill {
         transition: none;
     }
 }
