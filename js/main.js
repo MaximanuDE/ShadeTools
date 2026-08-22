@@ -5,6 +5,26 @@
  * ------------------------------------------------------------- */
 window.ShadeTools = window.ShadeTools || {};
 
+// Every tool page's output box follows the same markup: a container
+// with a placeholder span (shown when empty) and a chars span (the
+// result). Toggling between them is identical everywhere, so it lives
+// here instead of once per tool script.
+window.ShadeTools.renderOutput = function (text, placeholderId, charsId) {
+    var placeholder = document.getElementById(placeholderId || "output-placeholder");
+    var chars = document.getElementById(charsId || "output-chars");
+    if (!text) {
+        placeholder.style.display = "";
+        chars.textContent = "";
+        return;
+    }
+    placeholder.style.display = "none";
+    chars.textContent = text;
+};
+
+window.ShadeTools.prefersReducedMotion = function () {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+};
+
 window.ShadeTools.copyToClipboard = function (text, triggerEl) {
     if (!text) return;
 
@@ -166,10 +186,6 @@ window.ShadeTools.copyToClipboard = function (text, triggerEl) {
         return SCRAMBLE_GLYPHS[Math.floor(Math.random() * SCRAMBLE_GLYPHS.length)];
     }
 
-    function prefersReducedMotion() {
-        return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    }
-
     /* ---------------------------------------------------------------
      * One-time hero wordmark scramble-reveal, echoing the same
      * decode effect used on the password generator tool.
@@ -178,7 +194,7 @@ window.ShadeTools.copyToClipboard = function (text, triggerEl) {
         var words = document.querySelectorAll(".st-hero-word");
         if (!words.length) return;
 
-        if (prefersReducedMotion()) return; // final text is already in the markup
+        if (window.ShadeTools.prefersReducedMotion()) return; // final text is already in the markup
 
         var charIndex = 0;
 

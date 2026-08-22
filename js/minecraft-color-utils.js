@@ -4,8 +4,11 @@
  * /minecraft-animated-gradient-generator/. Ported from birdflop/web's
  * @birdflop/rgbirdflop package (packages/rgbirdflop/src/util/Colors +
  * ColorUtils + RGBUtils + AnimTABUtils), simplified from a
- * class-per-color-space hierarchy into plain functions. Exposed on
- * window since each page's own script is its own closure.
+ * class-per-color-space hierarchy into plain functions. Also holds the
+ * two small UI bits that were otherwise duplicated between both pages'
+ * own scripts: the color-stop-list widget and the formatting-checkbox
+ * reader. Exposed on window since each page's own script is its own
+ * closure.
  * ------------------------------------------------------------- */
 window.ShadeToolsMC = (function () {
     "use strict";
@@ -393,6 +396,95 @@ window.ShadeToolsMC = (function () {
         return JSON.stringify(jsonComponent(text, colors, formatting));
     }
 
+    /* ---------------------------------------------------------------
+     * Shared UI bits
+     * ------------------------------------------------------------- */
+    // The row of bold/italic/underline/strikethrough/obfuscate checkboxes
+    // is identical markup (same IDs) on both Minecraft tool pages.
+    function readFormatting() {
+        return {
+            bold: document.getElementById("fmt-bold").checked,
+            italic: document.getElementById("fmt-italic").checked,
+            underline: document.getElementById("fmt-underline").checked,
+            strikethrough: document.getElementById("fmt-strikethrough").checked,
+            obfuscate: document.getElementById("fmt-obfuscate").checked
+        };
+    }
+
+    // The "list of hex color stops" widget (swatch + hex label + remove
+    // button per row, plus an "add color" button) was duplicated
+    // verbatim between both tools' scripts — this owns the color array,
+    // renders it into `container`, and calls `onChange` with a copy of
+    // the current colors after every edit. `getColors()` reads the
+    // state back out on demand (e.g. right before building output).
+    function createColorList(options) {
+        var container = options.container;
+        var addButton = options.addButton;
+        var maxColors = options.maxColors || 8;
+        var onChange = options.onChange || function () {};
+        var colors = (options.initialColors || []).slice();
+
+        function render() {
+            container.innerHTML = "";
+
+            colors.forEach(function (hex, i) {
+                var row = document.createElement("div");
+                row.className = "st-color-row-item";
+
+                var swatch = document.createElement("input");
+                swatch.type = "color";
+                swatch.className = "st-color-swatch";
+                swatch.value = hex;
+                swatch.setAttribute("aria-label", "Color " + (i + 1));
+                swatch.addEventListener("input", function () {
+                    colors[i] = swatch.value;
+                    hexLabel.textContent = swatch.value.toUpperCase();
+                    onChange(colors.slice());
+                });
+
+                var hexLabel = document.createElement("span");
+                hexLabel.className = "st-color-hex";
+                hexLabel.textContent = hex.toUpperCase();
+
+                row.appendChild(swatch);
+                row.appendChild(hexLabel);
+
+                if (colors.length > 2) {
+                    var removeBtn = document.createElement("button");
+                    removeBtn.type = "button";
+                    removeBtn.className = "st-color-remove";
+                    removeBtn.setAttribute("aria-label", "Remove color " + (i + 1));
+                    removeBtn.innerHTML = '<i class="bi bi-x-lg"></i>';
+                    removeBtn.addEventListener("click", function () {
+                        colors.splice(i, 1);
+                        render();
+                        onChange(colors.slice());
+                    });
+                    row.appendChild(removeBtn);
+                }
+
+                container.appendChild(row);
+            });
+
+            if (addButton) addButton.disabled = colors.length >= maxColors;
+        }
+
+        if (addButton) {
+            addButton.addEventListener("click", function () {
+                if (colors.length >= maxColors) return;
+                colors.push("#ffffff");
+                render();
+                onChange(colors.slice());
+            });
+        }
+
+        render();
+
+        return {
+            getColors: function () { return colors.slice(); }
+        };
+    }
+
     return {
         hexToRgb: hexToRgb,
         rgbToHex: rgbToHex,
@@ -412,6 +504,8 @@ window.ShadeToolsMC = (function () {
         ANIMATION_STYLES: ANIMATION_STYLES,
         segmentText: segmentText,
         buildAnimationFrames: buildAnimationFrames,
-        expandSegmentColors: expandSegmentColors
+        expandSegmentColors: expandSegmentColors,
+        readFormatting: readFormatting,
+        createColorList: createColorList
     };
 })();
