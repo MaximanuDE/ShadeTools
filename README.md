@@ -10,7 +10,7 @@ Small, focused browser tools that run entirely on the client. No accounts, no se
 
 ## Project structure
 
-Every page (the root site and each subpage) follows the same self-contained layout:
+The root of the site holds the shared base that every page depends on:
 
 ```
 index.html
@@ -23,12 +23,22 @@ js/
 └── main.js
 ```
 
-- `index.html` — page markup. Contains empty `<div id="header"></div>` / `<div id="footer"></div>` mount points.
-- `components/header.html`, `components/footer.html` — HTML partials, fetched at runtime by `js/main.js` and injected into the mount points. Kept as plain markup fragments, not full documents.
-- `css/style.css` — all styling for that page/subpage, including the design tokens (CSS custom properties) for light and dark mode.
-- `js/main.js` — page logic: component loading, theme sync, and (on the password generator) the generator itself.
+- `components/header.html`, `components/footer.html` — the site-wide header and footer, fetched at runtime via absolute paths (`/components/header.html`) and injected into each page's `<div id="header"></div>` / `<div id="footer"></div>` mount points. Kept as plain markup fragments, not full documents.
+- `css/style.css` — design tokens (CSS custom properties, light and dark), base `html`/`body` rules, header/footer styling, and the homepage's own sections (hero, principles, tools grid).
+- `js/main.js` — component loading, theme sync, and active-nav-link detection. Loaded by every page via `/js/main.js`.
 
-Subpages are self-contained: each one has its own `components/`, `css/`, and `js/` rather than sharing a single global copy. When adding a new subpage, copy this structure into a new folder at the project root, e.g. `new-tool/`.
+Each tool subpage links this shared base with absolute paths (`/css/style.css`, `/js/main.js`) and adds only what's specific to that tool:
+
+```
+password-generator/
+├── index.html
+├── css/
+│   └── tool.css      # panel, output, strength meter, etc. — nothing shared
+└── js/
+    └── generator.js   # the generator logic itself, no component loading
+```
+
+`index.html` in a subpage links the shared stylesheet first, then its own local one (`/css/style.css` before `css/tool.css`), and likewise `/js/main.js` before its own script — so shared tokens and behavior are in place before the tool-specific styles and logic layer on top. A rebrand (new colors, new fonts, header/footer changes) means editing the two root files once; it doesn't need to touch every tool. When adding a new tool, copy the `password-generator/` shape: an `index.html` linking the shared base plus a small local `css/` and `js/` for whatever that tool actually needs.
 
 ## Design system
 
@@ -67,7 +77,7 @@ Any other static file server works too (e.g. the "Live Server" extension in VS C
 ## Notes on the password generator
 
 - Randomness is generated with `crypto.getRandomValues`, not `Math.random`.
-- Passphrase words come from a fixed, local list of 256 common English words (`WORDLIST` in `password-generator/js/main.js`) — nothing is fetched from an external dictionary API. 256 words means exactly 8 bits of entropy per word.
+- Passphrase words come from a fixed, local list of 256 common English words (`WORDLIST` in `password-generator/js/generator.js`) — nothing is fetched from an external dictionary API. 256 words means exactly 8 bits of entropy per word.
 - The entropy estimate only counts genuinely random choices (character pool size × length, or word count × word-list size). Fixed choices like the separator or capitalization style are not counted toward it, so the number shown is a conservative estimate rather than an inflated one.
 - History is kept in memory only (a plain JS array), not in `localStorage` or `sessionStorage`. It's cleared on reload by design — generated passwords are not meant to persist in browser storage.
 
