@@ -12,9 +12,11 @@
      * ------------------------------------------------------------- */
     function frameLine(format, text, segments, frameColors, formatting) {
         var perChar = MC.expandSegmentColors(segments, frameColors);
-        if (format === "minimessage") {
-            return MC.wrapMiniMessageFormatting(MC.miniMessagePerChar(text, perChar), formatting);
-        }
+        if (format === "minimessage") return MC.wrapMiniMessageFormatting(MC.miniMessagePerChar(text, perChar), formatting);
+        if (format === "shorthex") return MC.shortHexTagOutput(text, perChar, formatting);
+        if (format === "json") return MC.jsonOutputCompact(text, perChar, formatting);
+        if (format === "ampflat") return MC.flatHexOutput(text, perChar, formatting);
+        if (format === "bbcode") return MC.bbcodeOutput(text, perChar, formatting);
         var prefix = format === "section" ? "§" : "&";
         return MC.legacyOutput(text, perChar, prefix, formatting);
     }
@@ -29,8 +31,12 @@
 
     var FORMAT_NOTES = {
         minimessage: "MiniMessage works directly in Paper/Adventure-based plugin configs, including TAB when its MiniMessage support is enabled. Every animated frame uses an explicit color before each character, since Adventure's compact <gradient> tag can't express a scanning animation.",
+        shorthex: "The <#rrggbb> shorthand tag before each character in every frame, standalone rather than wrapped in a MiniMessage gradient tag.",
         section: "Legacy format using § (Minecraft Java Edition 1.16+). Works with TAB out of the box; a hex color code is inserted before every character in each frame.",
-        amp: "Legacy format using & (Minecraft Java Edition 1.16+). Use this wherever a plugin auto-translates ampersand codes; a hex color code is inserted before every character in each frame."
+        amp: "Legacy format using & (Minecraft Java Edition 1.16+). Use this wherever a plugin auto-translates ampersand codes; a hex color code is inserted before every character in each frame.",
+        ampflat: "A flatter &#rrggbb color code before every character in each frame, without per-digit splitting.",
+        json: "Raw Minecraft text component JSON per frame. Most TAB versions expect a plain formatted string per line, not JSON — check your TAB version supports JSON animation frames before using this.",
+        bbcode: "BBCode for forum signatures: [COLOR=#rrggbb] around every character in each frame, wrapped in whole-string [BOLD]/[ITALIC]/[UNDERLINE]/[STRIKETHROUGH] tags. Not a TAB format — for pasting an animated-looking frame elsewhere."
     };
 
     /* ---------------------------------------------------------------

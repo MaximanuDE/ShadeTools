@@ -181,11 +181,11 @@ window.ShadeToolsMC = (function () {
     /* ---------------------------------------------------------------
      * Output formats
      * ------------------------------------------------------------- */
-    // Legacy per-character hex color codes (Minecraft Java Edition 1.16+).
-    // A color code resets bold/italic/etc, so format codes are reinserted
-    // after every color code rather than once at the start. Spaces carry
-    // no visible color and are left uncoded to keep the output shorter.
-    function legacyOutput(text, colors, prefix, formatting) {
+    // Shared per-character color-code builder: emits colorToken(hex) then
+    // any format codes (reinserted after every color token, since a color
+    // code resets bold/italic/etc in legacy-style text) then the character
+    // itself. Spaces carry no visible color and are left uncoded.
+    function colorCodeOutput(text, colors, formatting, prefix, colorToken) {
         var fmtCodes = "";
         if (formatting.bold) fmtCodes += prefix + "l";
         if (formatting.italic) fmtCodes += prefix + "o";
@@ -201,10 +201,52 @@ window.ShadeToolsMC = (function () {
                 continue;
             }
             var hex = colors[i].replace("#", "").toUpperCase();
-            out += prefix + "x";
-            for (var j = 0; j < 6; j++) out += prefix + hex[j];
-            out += fmtCodes + ch;
+            out += colorToken(hex) + fmtCodes + ch;
         }
+        return out;
+    }
+
+    // Legacy per-character hex color codes (Minecraft Java Edition 1.16+),
+    // one digit at a time: §x§R§R§G§G§B§B / &x&R&R&G&G&B&B.
+    function legacyOutput(text, colors, prefix, formatting) {
+        return colorCodeOutput(text, colors, formatting, prefix, function (hex) {
+            var token = prefix + "x";
+            for (var j = 0; j < 6; j++) token += prefix + hex[j];
+            return token;
+        });
+    }
+
+    // Flat &#RRGGBB per character — no per-digit splitting. Used by some
+    // Discord bots and non-Adventure plugins that accept this shorthand.
+    function flatHexOutput(text, colors, formatting) {
+        return colorCodeOutput(text, colors, formatting, "&", function (hex) {
+            return "&#" + hex;
+        });
+    }
+
+    // <#RRGGBB> shorthand tag per character, standalone (not wrapped in a
+    // MiniMessage <gradient> or per-char color tag body) — some plugins
+    // accept this hex shorthand mixed with legacy & format codes.
+    function shortHexTagOutput(text, colors, formatting) {
+        return colorCodeOutput(text, colors, formatting, "&", function (hex) {
+            return "<#" + hex + ">";
+        });
+    }
+
+    // BBCode, for forum signatures: [COLOR=#RRGGBB]char[/COLOR] per
+    // character, wrapped in whole-string [BOLD]/[ITALIC]/[UNDERLINE]/
+    // [STRIKETHROUGH] tags. BBCode has no obfuscated-text equivalent.
+    function bbcodeOutput(text, colors, formatting) {
+        var inner = "";
+        for (var i = 0; i < text.length; i++) {
+            var ch = text[i];
+            inner += ch === " " ? ch : "[COLOR=#" + colors[i].replace("#", "").toUpperCase() + "]" + ch + "[/COLOR]";
+        }
+        var out = inner;
+        if (formatting.underline) out = "[UNDERLINE]" + out + "[/UNDERLINE]";
+        if (formatting.strikethrough) out = "[STRIKETHROUGH]" + out + "[/STRIKETHROUGH]";
+        if (formatting.italic) out = "[ITALIC]" + out + "[/ITALIC]";
+        if (formatting.bold) out = "[BOLD]" + out + "[/BOLD]";
         return out;
     }
 
@@ -323,7 +365,7 @@ window.ShadeToolsMC = (function () {
         return out;
     }
 
-    function jsonOutput(text, colors, formatting) {
+    function jsonComponent(text, colors, formatting) {
         var extra = [];
         for (var i = 0; i < text.length; i++) {
             var ch = text[i];
@@ -336,7 +378,19 @@ window.ShadeToolsMC = (function () {
             if (formatting.obfuscate) obj.obfuscated = true;
             extra.push(obj);
         }
-        return JSON.stringify({ text: "", extra: extra }, null, 2);
+        return { text: "", extra: extra };
+    }
+
+    // Pretty-printed, for a single standalone code block.
+    function jsonOutput(text, colors, formatting) {
+        return JSON.stringify(jsonComponent(text, colors, formatting), null, 2);
+    }
+
+    // Single-line, for embedding as one frame inside a YAML `- "..."` list
+    // item — a pretty-printed component's raw newlines would otherwise
+    // break the line structure.
+    function jsonOutputCompact(text, colors, formatting) {
+        return JSON.stringify(jsonComponent(text, colors, formatting));
     }
 
     return {
@@ -347,10 +401,14 @@ window.ShadeToolsMC = (function () {
         buildGradientColors: buildGradientColors,
         easedStep: easedStep,
         legacyOutput: legacyOutput,
+        flatHexOutput: flatHexOutput,
+        shortHexTagOutput: shortHexTagOutput,
+        bbcodeOutput: bbcodeOutput,
         wrapMiniMessageFormatting: wrapMiniMessageFormatting,
         miniMessageGradientTag: miniMessageGradientTag,
         miniMessagePerChar: miniMessagePerChar,
         jsonOutput: jsonOutput,
+        jsonOutputCompact: jsonOutputCompact,
         ANIMATION_STYLES: ANIMATION_STYLES,
         segmentText: segmentText,
         buildAnimationFrames: buildAnimationFrames,

@@ -28,9 +28,12 @@
 
     var FORMAT_NOTES = {
         minimessage: "MiniMessage works directly in Paper/Adventure-based plugin configs. RGB mode emits a compact <gradient> tag; HSL/OKLab emit an explicit color before each character, since Adventure's own gradient tag only interpolates in RGB.",
+        shorthex: "The <#rrggbb> shorthand tag before each character, standalone rather than wrapped in MiniMessage's own gradient tag — for plugins that accept this hex shorthand mixed with legacy & format codes.",
         section: "Legacy format using § (Minecraft Java Edition 1.16+): a hex color code is inserted before every character. Use this for raw text components and resource packs.",
         amp: "Legacy format using & (Minecraft Java Edition 1.16+): a hex color code is inserted before every character. Use this wherever a plugin auto-translates ampersand codes — most Bukkit/Spigot configs.",
-        json: "Raw Minecraft text component JSON, as used in /tellraw, books, and signs that accept JSON text."
+        ampflat: "A flatter &#rrggbb color code before every character, without per-digit splitting — for Discord bots and non-Adventure plugins that accept this shorthand instead of the split &x&r&r&g&g&b&b form.",
+        json: "Raw Minecraft text component JSON, as used in /tellraw, books, and signs that accept JSON text.",
+        bbcode: "BBCode for forum signatures: [COLOR=#rrggbb] around every character, wrapped in whole-string [BOLD]/[ITALIC]/[UNDERLINE]/[STRIKETHROUGH] tags. BBCode has no obfuscated-text equivalent."
     };
 
     /* ---------------------------------------------------------------
@@ -176,7 +179,10 @@
 
     function buildOutput(format, text, hexColors, colors, mode, formatting) {
         if (format === "minimessage") return miniMessageOutput(text, hexColors, colors, mode, formatting);
+        if (format === "shorthex") return MC.shortHexTagOutput(text, colors, formatting);
         if (format === "json") return jsonOutput(text, colors, formatting);
+        if (format === "ampflat") return MC.flatHexOutput(text, colors, formatting);
+        if (format === "bbcode") return MC.bbcodeOutput(text, colors, formatting);
         var prefix = format === "section" ? "§" : "&";
         return legacyOutput(text, colors, prefix, formatting);
     }
