@@ -1,1 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Generate animated Minecraft gradient text frames for the TAB plugin's animations.yml — RGB/HSL/OKLab blending, four scan styles, and a live preview. Runs entirely in your browser.">
+    <link rel="canonical" href="https://shadetools.maximanu.de/minecraft-animated-gradient-generator/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="ShadeTools">
+    <meta property="og:title" content="Animated Gradient Generator — ShadeTools">
+    <meta property="og:description" content="Generate animated Minecraft gradient text frames for the TAB plugin's animations.yml.">
+    <meta property="og:url" content="https://shadetools.maximanu.de/minecraft-animated-gradient-generator/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Animated Gradient Generator — ShadeTools">
+    <meta name="twitter:description" content="Generate animated Minecraft gradient text frames for the TAB plugin.">
+    <meta name="theme-color" content="#f1f2f6" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0a0b10" media="(prefers-color-scheme: dark)">
+    <title>Animated Gradient Generator — ShadeTools</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="mask-icon" href="/favicon.svg" color="#6339d9">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+    >
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    >
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="css/tool.css">
+</head>
+<body>
+    <div id="header"></div>
+    <main>
+        <section class="st-tool-section">
+            <div class="container">
+                <div class="st-tool-intro">
+                    <p class="st-eyebrow"><i class="bi bi-stars"></i> Local &amp; instant</p>
+                    <h1 class="st-title">Animated Gradient Generator</h1>
+                    <p class="st-subtitle">Turns text into a scanning gradient animation and exports every frame, ready to paste into the TAB plugin's <code>animations.yml</code>. Nothing is sent to a server.</p>
+                </div>
+
+                <div class="st-panel">
+                    <div class="st-field">
+                        <div class="st-field-label">
+                            <label for="input-text">Your text</label>
+                        </div>
+                        <input type="text" class="form-control st-input" id="input-text" placeholder="Type something…" maxlength="80" value="ShadeTools">
+                    </div>
+
+                    <div class="st-field">
+                        <div class="st-field-label">
+                            <label>Colors</label>
+                            <button type="button" class="st-btn-text" id="add-color">+ Add color</button>
+                        </div>
+                        <div class="st-color-list" id="color-list"></div>
+                    </div>
+
+                    <div class="st-field-row">
+                        <div class="st-field">
+                            <div class="st-field-label">
+                                <label for="mode-select">Gradient mode</label>
+                            </div>
+                            <select class="form-select st-select st-select-wide" id="mode-select">
+                                <option value="rgb">RGB — linear</option>
+                                <option value="hsl">HSL — vivid hues</option>
+                                <option value="oklab" selected>OKLab — perceptually smooth</option>
+                            </select>
+                        </div>
+                        <div class="st-field">
+                            <div class="st-field-label">
+                                <label for="style-select">Animation style</label>
+                            </div>
+                            <select class="form-select st-select st-select-wide" id="style-select">
+                                <option value="1" selected>Left to right</option>
+                                <option value="2">Right to left</option>
+                                <option value="3">Bouncing</option>
+                                <option value="4">Full-text cycle</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="st-field-row">
+                        <div class="st-field">
+                            <div class="st-field-label">
+                                <label for="band-input">Color band size</label>
+                            </div>
+                            <input type="number" class="form-control st-input" id="band-input" min="1" max="10" value="1">
+                        </div>
+                        <div class="st-field">
+                            <div class="st-field-label">
+                                <label for="speed-input">Change interval (ticks)</label>
+                            </div>
+                            <input type="number" class="form-control st-input" id="speed-input" min="1" max="1000" value="2">
+                        </div>
+                    </div>
+
+                    <div class="st-field">
+                        <div class="st-field-label">
+                            <label for="name-input">Animation name</label>
+                        </div>
+                        <input type="text" class="form-control st-input" id="name-input" placeholder="gradient" maxlength="40" value="gradient">
+                    </div>
+
+                    <div class="st-field">
+                        <div class="st-field-label">
+                            <label>Formatting</label>
+                        </div>
+                        <div class="st-toggle-grid">
+                            <label class="st-toggle">
+                                <input type="checkbox" id="fmt-bold">
+                                <span>Bold</span>
+                            </label>
+                            <label class="st-toggle">
+                                <input type="checkbox" id="fmt-italic">
+                                <span>Italic</span>
+                            </label>
+                            <label class="st-toggle">
+                                <input type="checkbox" id="fmt-underline">
+                                <span>Underline</span>
+                            </label>
+                            <label class="st-toggle">
+                                <input type="checkbox" id="fmt-strikethrough">
+                                <span>Strikethrough</span>
+                            </label>
+                            <label class="st-toggle">
+                                <input type="checkbox" id="fmt-obfuscate">
+                                <span>Obfuscated</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="st-gradient-preview st-anim-preview" id="preview" aria-live="polite"></div>
+                    <p class="st-note" id="frame-note"></p>
+
+                    <div class="st-field">
+                        <div class="st-field-label">
+                            <label for="format-select">Color code format</label>
+                        </div>
+                        <select class="form-select st-select st-select-wide" id="format-select">
+                            <option value="minimessage" selected>MiniMessage (Paper / Adventure)</option>
+                            <option value="shorthex">&lt;#rrggbb&gt; shorthand</option>
+                            <option value="section">Legacy — § split (§x§r§r§g§g§b§b)</option>
+                            <option value="amp">Legacy — &amp; split (&amp;x&amp;r&amp;r&amp;g&amp;g&amp;b&amp;b)</option>
+                            <option value="ampflat">Legacy — flat &amp;#rrggbb</option>
+                            <option value="json">Raw JSON (per-frame text component)</option>
+                            <option value="bbcode">BBCode (forum signatures)</option>
+                        </select>
+                    </div>
+
+                    <div class="st-output-row">
+                        <div class="st-output st-output-multiline" id="output" role="textbox" aria-readonly="true" aria-label="animations.yml block">
+                            <span class="st-output-placeholder" id="output-placeholder">Type something to generate the animation</span>
+                            <span class="st-output-chars" id="output-chars" aria-hidden="true"></span>
+                        </div>
+                        <div class="st-output-actions">
+                            <button type="button" class="btn st-btn-icon" id="copy-btn" title="Copy to clipboard" aria-label="Copy to clipboard">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="st-note">Paste this block into TAB's <code>animations.yml</code>, or drop just the <code>texts:</code> lines into any config that reads animation frames the same way.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div id="footer"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/minecraft-color-utils.js"></script>
+    <script src="js/generator.js"></script>
+</body>
+</html>
