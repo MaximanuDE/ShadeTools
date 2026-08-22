@@ -152,13 +152,13 @@ main { flex: 1 0 auto; }
 .st-nav-dropdown { position: relative; }
 
 .st-nav-dropdown-toggle {
-    background: none;
+    background: var(--st-surface-2);
     border: none;
     font-family: inherit;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.35rem;
 }
 
 .st-nav-caret { font-size: 0.65rem; transition: transform 0.15s ease; }
@@ -167,17 +167,18 @@ main { flex: 1 0 auto; }
 
 .st-dropdown-panel {
     position: absolute;
-    top: calc(100% + 0.5rem);
+    top: calc(100% + 0.6rem);
     right: 0;
-    min-width: 300px;
+    width: 500px;
+    max-width: calc(100vw - 2rem);
     background: var(--st-surface);
     border: 1px solid var(--st-border);
-    border-radius: 16px;
-    padding: 0.6rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    border-radius: 18px;
+    padding: 1rem;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.22);
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-4px);
+    transform: translateY(-6px);
     transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
     z-index: 30;
 }
@@ -197,12 +198,10 @@ main { flex: 1 0 auto; }
     .st-nav-dropdown:hover .st-nav-caret { transform: rotate(180deg); }
 }
 
-.st-dropdown-category { padding: 0.3rem 0.4rem; }
-
-.st-dropdown-category + .st-dropdown-category {
-    border-top: 1px solid var(--st-border);
-    margin-top: 0.3rem;
-    padding-top: 0.6rem;
+.st-dropdown-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1.25rem;
 }
 
 .st-dropdown-category-label {
@@ -211,8 +210,10 @@ main { flex: 1 0 auto; }
     font-size: 0.7rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--st-muted);
-    padding: 0.2rem 0.6rem 0.4rem;
+    color: var(--st-accent-strong);
+    padding: 0 0.3rem 0.5rem;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid var(--st-border);
 }
 
 .st-dropdown-item {
@@ -354,10 +355,16 @@ main { flex: 1 0 auto; }
     height: 40rem;
     background: radial-gradient(circle at 30% 30%, var(--st-accent) 0%, transparent 60%),
                 radial-gradient(circle at 65% 60%, var(--st-accent-2) 0%, transparent 55%);
-    opacity: 0.18;
+    opacity: 0.22;
     pointer-events: none;
-    mask-image: linear-gradient(to bottom, black 0%, black 30%, transparent 85%);
-    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 30%, transparent 85%);
+}
+
+.st-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 0%, transparent 35%, var(--st-bg) 92%);
+    pointer-events: none;
 }
 
 .st-eyebrow {
@@ -595,10 +602,16 @@ a.st-tool-card:hover .st-tool-arrow {
     height: 34rem;
     background: radial-gradient(circle at 30% 30%, var(--st-accent) 0%, transparent 60%),
                 radial-gradient(circle at 65% 60%, var(--st-accent-2) 0%, transparent 55%);
-    opacity: 0.14;
+    opacity: 0.18;
     pointer-events: none;
-    mask-image: linear-gradient(to bottom, black 0%, black 30%, transparent 85%);
-    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 30%, transparent 85%);
+}
+
+.st-tool-section::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 0%, transparent 35%, var(--st-bg) 92%);
+    pointer-events: none;
 }
 
 .st-tool-section .container { position: relative; z-index: 1; }
