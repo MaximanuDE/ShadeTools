@@ -65,8 +65,20 @@
         return "<gradient:" + startHex + ":" + endHex + ">" + text + "</gradient>";
     }
 
+    var FORMAT_NOTES = {
+        minimessage: "MiniMessage works directly in Paper/Adventure-based plugin configs — the client resolves the gradient itself.",
+        section: "Legacy format using § (Minecraft Java Edition 1.16+): a hex color code is inserted before every character. Use this for raw text components and resource packs.",
+        amp: "Legacy format using & (Minecraft Java Edition 1.16+): a hex color code is inserted before every character. Use this wherever a plugin auto-translates ampersand codes — most Bukkit/Spigot configs."
+    };
+
+    function buildOutput(format, text, colors, startHex, endHex) {
+        if (format === "minimessage") return miniMessageOutput(text, startHex, endHex);
+        if (format === "section") return legacyOutput(text, colors, "§");
+        return legacyOutput(text, colors, "&");
+    }
+
     /* ---------------------------------------------------------------
-     * Preview + wiring
+     * Preview + output + wiring
      * ------------------------------------------------------------- */
     function renderPreview(text, colors) {
         var preview = document.getElementById("preview");
@@ -88,10 +100,25 @@
         }
     }
 
+    function renderOutput(code) {
+        var placeholder = document.getElementById("output-placeholder");
+        var chars = document.getElementById("output-chars");
+        if (!code) {
+            placeholder.style.display = "";
+            chars.textContent = "";
+            return;
+        }
+        placeholder.style.display = "none";
+        chars.textContent = code;
+    }
+
+    var currentOutput = "";
+
     function update() {
         var text = document.getElementById("input-text").value;
         var startHex = document.getElementById("color-start").value;
         var endHex = document.getElementById("color-end").value;
+        var format = document.getElementById("format-select").value;
 
         document.getElementById("color-start-hex").textContent = startHex.toUpperCase();
         document.getElementById("color-end-hex").textContent = endHex.toUpperCase();
@@ -99,25 +126,20 @@
         var colors = buildGradientColors(text.length, startHex, endHex);
         renderPreview(text, colors);
 
-        document.getElementById("output-mini").textContent = text ? miniMessageOutput(text, startHex, endHex) : "";
-        document.getElementById("output-section").textContent = text ? legacyOutput(text, colors, "§") : "";
-        document.getElementById("output-amp").textContent = text ? legacyOutput(text, colors, "&") : "";
-    }
-
-    function wireCopyButton(buttonId, outputId) {
-        document.getElementById(buttonId).addEventListener("click", function () {
-            window.ShadeTools.copyToClipboard(document.getElementById(outputId).textContent, this);
-        });
+        currentOutput = text ? buildOutput(format, text, colors, startHex, endHex) : "";
+        renderOutput(currentOutput);
+        document.getElementById("format-note").textContent = FORMAT_NOTES[format];
     }
 
     document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("input-text").addEventListener("input", update);
         document.getElementById("color-start").addEventListener("input", update);
         document.getElementById("color-end").addEventListener("input", update);
+        document.getElementById("format-select").addEventListener("change", update);
 
-        wireCopyButton("copy-mini", "output-mini");
-        wireCopyButton("copy-section", "output-section");
-        wireCopyButton("copy-amp", "output-amp");
+        document.getElementById("copy-btn").addEventListener("click", function () {
+            window.ShadeTools.copyToClipboard(currentOutput, this);
+        });
 
         update();
     });

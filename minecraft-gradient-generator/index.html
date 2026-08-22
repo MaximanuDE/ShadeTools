@@ -69,37 +69,30 @@
 
                     <div class="st-gradient-preview" id="preview" aria-live="polite"></div>
 
-                    <div class="st-code-block">
-                        <div class="st-code-block-header">
-                            <span class="st-code-block-label">MiniMessage <span class="st-muted">(Paper / Adventure)</span></span>
-                            <button type="button" class="btn st-btn-icon st-btn-icon-sm" id="copy-mini" title="Copy" aria-label="Copy MiniMessage code">
+                    <div class="st-field">
+                        <div class="st-field-label">
+                            <label for="format-select">Output format</label>
+                        </div>
+                        <select class="form-select st-select st-select-wide" id="format-select">
+                            <option value="minimessage" selected>MiniMessage (Paper / Adventure)</option>
+                            <option value="section">Legacy — § section sign</option>
+                            <option value="amp">Legacy — &amp; ampersand</option>
+                        </select>
+                    </div>
+
+                    <div class="st-output-row">
+                        <div class="st-output st-output-multiline" id="output" role="textbox" aria-readonly="true" aria-label="Formatted gradient code">
+                            <span class="st-output-placeholder" id="output-placeholder">Type something to generate the code</span>
+                            <span class="st-output-chars" id="output-chars" aria-hidden="true"></span>
+                        </div>
+                        <div class="st-output-actions">
+                            <button type="button" class="btn st-btn-icon" id="copy-btn" title="Copy to clipboard" aria-label="Copy to clipboard">
                                 <i class="bi bi-clipboard"></i>
                             </button>
                         </div>
-                        <code class="st-code" id="output-mini"></code>
                     </div>
 
-                    <div class="st-code-block">
-                        <div class="st-code-block-header">
-                            <span class="st-code-block-label">Legacy <span class="st-muted">(§ section sign)</span></span>
-                            <button type="button" class="btn st-btn-icon st-btn-icon-sm" id="copy-section" title="Copy" aria-label="Copy legacy section-sign code">
-                                <i class="bi bi-clipboard"></i>
-                            </button>
-                        </div>
-                        <code class="st-code" id="output-section"></code>
-                    </div>
-
-                    <div class="st-code-block">
-                        <div class="st-code-block-header">
-                            <span class="st-code-block-label">Legacy <span class="st-muted">(&amp; ampersand)</span></span>
-                            <button type="button" class="btn st-btn-icon st-btn-icon-sm" id="copy-amp" title="Copy" aria-label="Copy legacy ampersand code">
-                                <i class="bi bi-clipboard"></i>
-                            </button>
-                        </div>
-                        <code class="st-code" id="output-amp"></code>
-                    </div>
-
-                    <p class="st-note">MiniMessage works directly in Paper/Adventure-based plugin configs. The legacy formats insert a hex color code before every character (Minecraft Java Edition 1.16+): use § for raw text components and resource packs, and &amp; wherever a plugin auto-translates ampersand codes (most Bukkit/Spigot configs).</p>
+                    <p class="st-note" id="format-note">MiniMessage works directly in Paper/Adventure-based plugin configs — the client resolves the gradient itself.</p>
                 </div>
             </div>
         </section>

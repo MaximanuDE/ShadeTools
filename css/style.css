@@ -76,7 +76,8 @@ main { flex: 1 0 auto; }
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 0;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
 }
 
 .st-logo {
@@ -135,7 +136,8 @@ main { flex: 1 0 auto; }
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    padding: 0.25rem 0 1rem;
+    padding-top: 0.25rem;
+    padding-bottom: 1rem;
 }
 
 .st-nav-link-mobile {
