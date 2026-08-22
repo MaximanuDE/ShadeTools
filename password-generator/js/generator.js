@@ -155,18 +155,6 @@
     /* ---------------------------------------------------------------
      * Rendering
      * ------------------------------------------------------------- */
-    function renderOutput(text) {
-        var placeholder = document.getElementById("output-placeholder");
-        var chars = document.getElementById("output-chars");
-        if (!text) {
-            placeholder.style.display = "";
-            chars.textContent = "";
-            return;
-        }
-        placeholder.style.display = "none";
-        chars.textContent = text;
-    }
-
     function renderStrength(bits) {
         var fill = document.getElementById("strength-fill");
         var label = document.getElementById("strength-label");
@@ -231,7 +219,7 @@
     function generate() {
         var result = state.mode === "characters" ? generateCharacters() : generatePassphrase();
         currentText = result.text;
-        renderOutput(result.text);
+        window.ShadeTools.renderOutput(result.text);
         renderStrength(result.entropy);
 
         if (result.text) {
