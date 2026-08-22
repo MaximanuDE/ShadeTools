@@ -188,8 +188,8 @@ main { flex: 1 0 auto; }
 .st-nav-dropdown { position: relative; }
 
 .st-nav-dropdown-toggle {
-    background: var(--st-surface-2);
-    border: 1px solid var(--st-border);
+    background: none;
+    border: none;
     font-family: inherit;
     cursor: pointer;
     display: inline-flex;
@@ -197,61 +197,33 @@ main { flex: 1 0 auto; }
     gap: 0.35rem;
 }
 
-.st-nav-dropdown-toggle:hover { border-color: var(--st-accent); }
-
 /* ==========================================================
-   Light/dark theme toggle switch
+   Light/dark theme button — a plain icon button (not a slider), the
+   leftmost item in the nav so it reads as a separate utility control
+   rather than another page link next to Home/Tools.
    ========================================================== */
 .st-theme-toggle {
-    --st-toggle-w: 3rem;
-    --st-toggle-h: 1.6rem;
-    --st-toggle-pad: 0.2rem;
-    --st-toggle-thumb: calc(var(--st-toggle-h) - 2 * var(--st-toggle-pad));
-    position: relative;
-    width: var(--st-toggle-w);
-    height: var(--st-toggle-h);
+    width: 2.4rem;
+    height: 2.4rem;
     flex-shrink: 0;
-    border-radius: 999px;
+    border-radius: 10px;
     border: 1px solid var(--st-border);
     background: var(--st-surface-2);
-    padding: 0 0.4rem;
     display: inline-flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     cursor: pointer;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
+    color: var(--st-text);
+    transition: border-color 0.15s ease, color 0.15s ease;
 }
 
-.st-theme-toggle:hover { border-color: var(--st-accent); }
+.st-theme-toggle:hover { border-color: var(--st-accent); color: var(--st-accent); }
 
-.st-theme-toggle-icon {
-    position: relative;
-    z-index: 1;
-    font-size: 0.7rem;
-    line-height: 1;
-    color: var(--st-muted);
-    transition: color 0.15s ease;
-}
+.st-theme-toggle-icon { font-size: 1rem; line-height: 1; }
 
-.st-theme-toggle-icon-sun { color: #e8a33d; }
-[data-bs-theme="dark"] .st-theme-toggle-icon-sun { color: var(--st-muted); }
-[data-bs-theme="dark"] .st-theme-toggle-icon-moon { color: #b7c2ff; }
-
-.st-theme-toggle-thumb {
-    position: absolute;
-    top: var(--st-toggle-pad);
-    left: var(--st-toggle-pad);
-    width: var(--st-toggle-thumb);
-    height: var(--st-toggle-thumb);
-    border-radius: 50%;
-    background: var(--st-surface);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    transition: transform 0.2s ease;
-}
-
-[data-bs-theme="dark"] .st-theme-toggle-thumb {
-    transform: translateX(calc(var(--st-toggle-w) - var(--st-toggle-thumb) - 2 * var(--st-toggle-pad)));
-}
+.st-theme-toggle-icon-moon { display: none; }
+[data-bs-theme="dark"] .st-theme-toggle-icon-sun { display: none; }
+[data-bs-theme="dark"] .st-theme-toggle-icon-moon { display: inline; }
 
 .st-nav-caret { font-size: 0.65rem; transition: transform 0.15s ease; }
 
@@ -442,11 +414,11 @@ main { flex: 1 0 auto; }
 .st-hero::before {
     content: "";
     position: absolute;
-    inset: -20% -10% auto auto;
-    width: 40rem;
-    height: 40rem;
-    background: radial-gradient(circle at 30% 30%, var(--st-accent) 0%, transparent 60%),
-                radial-gradient(circle at 65% 60%, var(--st-accent-2) 0%, transparent 55%);
+    inset: -15% 0 auto 0;
+    height: 34rem;
+    background: radial-gradient(circle at 12% 35%, var(--st-accent) 0%, transparent 42%),
+                radial-gradient(circle at 50% 65%, var(--st-accent-2) 0%, transparent 40%),
+                radial-gradient(circle at 88% 25%, var(--st-accent) 0%, transparent 38%);
     opacity: 0.22;
     pointer-events: none;
 }
@@ -1056,8 +1028,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 @media (prefers-reduced-motion: reduce) {
     .st-nav-link, .st-tool-card, .st-tool-card::before, .st-tool-arrow,
     .st-nav-caret, .st-dropdown-panel, .st-btn-icon, .st-btn-generate,
-    .st-dropdown-viewall, .st-dropdown-viewall i,
-    .st-theme-toggle-thumb, .st-theme-toggle-icon {
+    .st-dropdown-viewall, .st-dropdown-viewall i, .st-theme-toggle {
         transition: none;
     }
 }
