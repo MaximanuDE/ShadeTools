@@ -76,7 +76,8 @@ main { flex: 1 0 auto; }
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 0;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
 }
 
 .st-logo {
@@ -135,7 +136,8 @@ main { flex: 1 0 auto; }
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    padding: 0.25rem 0 1rem;
+    padding-top: 0.25rem;
+    padding-bottom: 1rem;
 }
 
 .st-nav-link-mobile {
@@ -775,6 +777,67 @@ a.st-tool-card:hover .st-tool-arrow {
 
 .st-btn-generate:hover { opacity: 0.92; }
 .st-btn-generate:active { transform: translateY(1px); }
+
+.st-btn-text {
+    background: none;
+    border: none;
+    color: var(--st-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.2rem 0.4rem;
+}
+
+.st-btn-text:hover { color: var(--st-accent); }
+.st-btn-text:disabled { opacity: 0.4; cursor: not-allowed; }
+.st-btn-text:disabled:hover { color: var(--st-muted); }
+
+/* ==========================================================
+   404 page
+   ========================================================== */
+.st-404-section {
+    padding: 5rem 0 6rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.st-404-section::before {
+    content: "";
+    position: absolute;
+    inset: -20% -10% auto auto;
+    width: 34rem;
+    height: 34rem;
+    background: radial-gradient(circle at 30% 30%, var(--st-accent) 0%, transparent 60%),
+                radial-gradient(circle at 65% 60%, var(--st-accent-2) 0%, transparent 55%);
+    opacity: 0.18;
+    pointer-events: none;
+}
+
+.st-404-section .container { position: relative; z-index: 1; }
+
+.st-404-intro { max-width: 520px; margin: 0 auto 2rem; text-align: center; }
+
+.st-404-actions {
+    max-width: 520px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.st-404-actions .st-btn-generate {
+    width: auto;
+    display: inline-flex;
+    padding-left: 1.75rem;
+    padding-right: 1.75rem;
+    margin-bottom: 1.5rem;
+    text-decoration: none;
+}
+
+.st-404-links a {
+    color: var(--st-accent-strong);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.st-404-links a:hover { color: var(--st-accent); }
 
 /* ==========================================================
    Accessibility
