@@ -96,6 +96,35 @@ main { flex: 1 0 auto; }
 .st-nav-link:hover { color: var(--st-text); background: var(--st-surface-2); }
 .st-nav-link.active { color: var(--st-accent-ink); background: var(--st-accent); }
 
+.st-nav-toggle {
+    background: none;
+    border: none;
+    color: var(--st-text);
+    font-size: 1.4rem;
+    line-height: 1;
+    padding: 0.3rem 0.5rem;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.st-nav-toggle:hover { background: var(--st-surface-2); }
+
+.st-nav-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.25rem 0 1rem;
+}
+
+.st-nav-link-mobile {
+    display: block;
+    width: 100%;
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem;
+}
+
 .st-footer {
     background: var(--st-bg);
     border-top: 1px solid var(--st-border);
