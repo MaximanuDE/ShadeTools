@@ -34,7 +34,7 @@ Subpages are self-contained: each one has its own `components/`, `css/`, and `js
 
 Shared across all pages via CSS custom properties defined in each page's `css/style.css`:
 
-- **Colors:** an ember (`--st-accent`) / electric blue (`--st-accent-2`) duotone on a warm paper background, with separate light and dark value sets under `[data-bs-theme="dark"]`.
+- **Colors:** a violet (`--st-accent`) / cyan (`--st-accent-2`) duotone on a cool neutral gray background, with separate light and dark value sets under `[data-bs-theme="dark"]`.
 - **Type:** [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk) for UI text, [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) for anything data-like (passwords, entropy values, the eyebrow labels).
 - **Framework:** [Bootstrap 5.3.8](https://getbootstrap.com/) + [Bootstrap Icons 1.13.1](https://icons.getbootstrap.com/), loaded from jsDelivr CDN. Custom styles in `style.css` sit on top of Bootstrap's defaults rather than overriding them wholesale.
 
