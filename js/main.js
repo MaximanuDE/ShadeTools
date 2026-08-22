@@ -107,21 +107,53 @@ window.ShadeTools.copyToClipboard = function (text, triggerEl) {
         });
     }
 
+    // System preference by default; a click on the header's theme toggle
+    // stores an explicit choice that overrides and persists across visits
+    // (localStorage), until the toggle is used again.
+    var THEME_STORAGE_KEY = "shadetools-theme";
+
+    function getStoredTheme() {
+        try { return localStorage.getItem(THEME_STORAGE_KEY); } catch (e) { return null; }
+    }
+
+    function setStoredTheme(value) {
+        try { localStorage.setItem(THEME_STORAGE_KEY, value); } catch (e) { /* no-op, e.g. private mode */ }
+    }
+
     function initTheme() {
         var mq = window.matchMedia("(prefers-color-scheme: dark)");
 
-        function apply(matches) {
-            document.documentElement.setAttribute("data-bs-theme", matches ? "dark" : "light");
+        function apply(isDark) {
+            document.documentElement.setAttribute("data-bs-theme", isDark ? "dark" : "light");
+            document.querySelectorAll(".st-theme-toggle").forEach(function (btn) {
+                btn.setAttribute("aria-pressed", isDark ? "true" : "false");
+            });
         }
 
-        apply(mq.matches);
-        // Live update, no reload required
+        var stored = getStoredTheme();
+        apply(stored ? stored === "dark" : mq.matches);
+
+        // Live-follow the system theme only while nothing has been chosen
+        // manually yet.
+        function onSystemChange(e) {
+            if (!getStoredTheme()) apply(e.matches);
+        }
         if (mq.addEventListener) {
-            mq.addEventListener("change", function (e) { apply(e.matches); });
+            mq.addEventListener("change", onSystemChange);
         } else if (mq.addListener) {
             // Safari < 14 fallback
-            mq.addListener(function (e) { apply(e.matches); });
+            mq.addListener(onSystemChange);
         }
+
+        // Delegated so it also covers the toggle button once the header
+        // component (loaded async via fetch) lands in the DOM.
+        document.addEventListener("click", function (e) {
+            var btn = e.target.closest(".st-theme-toggle");
+            if (!btn) return;
+            var next = document.documentElement.getAttribute("data-bs-theme") !== "dark";
+            setStoredTheme(next ? "dark" : "light");
+            apply(next);
+        });
     }
 
     /* ---------------------------------------------------------------
