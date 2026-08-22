@@ -214,46 +214,13 @@
             copyBtn.setAttribute("aria-label", "Copy this password");
             copyBtn.innerHTML = '<i class="bi bi-clipboard"></i>';
             copyBtn.addEventListener("click", function () {
-                copyToClipboard(entry, copyBtn);
+                window.ShadeTools.copyToClipboard(entry, copyBtn);
             });
 
             item.appendChild(value);
             item.appendChild(copyBtn);
             list.appendChild(item);
         });
-    }
-
-    /* ---------------------------------------------------------------
-     * Clipboard
-     * ------------------------------------------------------------- */
-    function copyToClipboard(text, triggerEl) {
-        if (!text) return;
-
-        var done = function () {
-            if (!triggerEl) return;
-            var icon = triggerEl.querySelector("i");
-            if (!icon) return;
-            var original = icon.className;
-            icon.className = "bi bi-check2";
-            triggerEl.classList.add("st-btn-icon-success");
-            setTimeout(function () {
-                icon.className = original;
-                triggerEl.classList.remove("st-btn-icon-success");
-            }, 1200);
-        };
-
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(done).catch(function () {});
-        } else {
-            var temp = document.createElement("textarea");
-            temp.value = text;
-            temp.style.position = "fixed";
-            temp.style.opacity = "0";
-            document.body.appendChild(temp);
-            temp.select();
-            try { document.execCommand("copy"); done(); } catch (err) { /* no-op */ }
-            document.body.removeChild(temp);
-        }
     }
 
     /* ---------------------------------------------------------------
@@ -314,7 +281,7 @@
         document.getElementById("generate-btn").addEventListener("click", generate);
 
         document.getElementById("copy-btn").addEventListener("click", function () {
-            copyToClipboard(currentText, document.getElementById("copy-btn"));
+            window.ShadeTools.copyToClipboard(currentText, document.getElementById("copy-btn"));
         });
 
         document.getElementById("clear-history-btn").addEventListener("click", function () {

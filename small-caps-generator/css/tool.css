@@ -1,0 +1,13 @@
+/* Small-caps-specific styles only. Design tokens, base rules,
+   header/footer, and the generic tool-page shell (intro, panel, output
+   row, form fields) come from the shared /css/style.css, loaded before
+   this file — see the <link> order in index.html. */
+
+#input-text {
+    resize: vertical;
+    min-height: 4.5rem;
+}
+
+#output-chars {
+    font-size: 1.3rem;
+}
